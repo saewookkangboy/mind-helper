@@ -128,11 +128,14 @@ export async function getTarotContextAndCards(userQuery) {
   if (!result?.cards?.length) {
     return { contextText: '', tarotCards: [] };
   }
-  const lines = result.cards.map((c) => {
-    const pos = c.position ? `[${c.position}] ` : '';
-    return `${pos}${c.name}${c.reversed ? ' (역방향)' : ''}: ${c.meaningShort || '-'}`;
+  const lines = result.cards.map((c, i) => {
+    const pos = c.position ? `[${c.position}]` : `[위치${i + 1}]`;
+    return `${pos} ${c.name}${c.reversed ? ' (역방향)' : ''}: ${c.meaningShort || '-'}`;
   });
-  const contextText = `[이번 분석에서 참고한 타로 카드]\n${lines.join('\n')}`;
+  const contextText = `[이번 분석에서 참고한 타로 카드 — 과거·현재·미래 3장]
+${lines.join('\n')}
+
+【타로 섹션 필수】위 3장을 각각 "과거/현재/미래" 위치와 카드 이름을 명시하며, 사용자 질문과 어떻게 연관되는지 상세 해석할 것. 역방향 카드는 역방향 의미를 반영할 것.`;
   return {
     contextText,
     tarotCards: result.cards,

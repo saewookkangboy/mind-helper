@@ -10,14 +10,21 @@ import { generatePipelineResponse } from './ai.service.js';
 import { getTarotContextAndCards } from './tarot.service.js';
 import { logger } from '../../../shared/src/utils/logger.js';
 
-/** Orchestrator 단계: 각 도메인 컨텍스트에 사용자 질문을 붙여, 섹션별 답변이 질문에 맞게 나오도록 함 */
-function enrichContextsWithQuery(contexts, userQuery) {
-  if (!userQuery || typeof userQuery !== 'string') return contexts;
-  const trimmed = userQuery.trim();
-  if (!trimmed) return contexts;
+/** Orchestrator 단계: 각 도메인 컨텍스트에 사용자 질문·관심사를 붙여, 창의적·맞춤형 답변에 활용 */
+function enrichContextsWithQueryAndInterests(contexts, userQuery, interests) {
+  const parts = [];
+  if (userQuery && typeof userQuery === 'string' && userQuery.trim()) {
+    parts.push('[사용자 질문]\n' + userQuery.trim());
+  }
+  if (interests && (Array.isArray(interests) ? interests.length > 0 : typeof interests === 'string')) {
+    const interestStr = Array.isArray(interests) ? interests.join(', ') : String(interests).trim();
+    if (interestStr) parts.push('[관심사·맥락]\n' + interestStr);
+  }
+  if (parts.length === 0) return contexts;
+  const suffix = '\n\n' + parts.join('\n\n');
   const enriched = {};
   for (const [id, text] of Object.entries(contexts)) {
-    enriched[id] = `${text}\n\n[사용자 질문]\n${trimmed}`;
+    enriched[id] = `${text}${suffix}`;
   }
   return enriched;
 }
@@ -47,7 +54,7 @@ export async function runPipeline({ userQuery, language = 'ko', domainIds, userC
     language,
   });
 
-  const enrichedContexts = enrichContextsWithQuery(contexts, userQuery);
+  const enrichedContexts = enrichContextsWithQueryAndInterests(contexts, userQuery, userContext.interests);
 
   let tarotCards = [];
   if (sourcesUsed.includes(DOMAIN_IDS.TAROT)) {
@@ -68,6 +75,7 @@ export async function runPipeline({ userQuery, language = 'ko', domainIds, userC
     domainContexts: enrichedContexts,
     sourcesUsed,
     interests: userContext.interests,
+    mbti: userContext.mbti,
   });
 
   const timestamp = new Date().toISOString();

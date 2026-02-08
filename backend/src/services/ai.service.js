@@ -86,11 +86,12 @@ async function getHighQualityExamples(queryType) {
 
 /**
  * OpenAI API 호출
- * @param {object} [options] - { maxTokens } 파이프라인 등 장문 응답 시 4096 권장
+ * @param {object} [options] - { maxTokens, temperature } 파이프라인: 4096, temperature 0.82 권장
  */
 async function callOpenAI(messages, systemPrompt, options = {}) {
   const { openai } = AI_CONFIG;
   const maxTokens = options.maxTokens ?? 1000;
+  const temperature = typeof options.temperature === 'number' ? options.temperature : 0.7;
 
   if (!openai.apiKey) {
     throw new AppError(
@@ -112,7 +113,7 @@ async function callOpenAI(messages, systemPrompt, options = {}) {
         { role: 'system', content: systemPrompt },
         ...messages,
       ],
-      temperature: 0.7,
+      temperature,
       max_tokens: maxTokens,
     }),
   });
@@ -142,11 +143,12 @@ async function callOpenAI(messages, systemPrompt, options = {}) {
 /**
  * Groq API 호출 (OpenAI 호환: 무료 티어 제공)
  * https://console.groq.com/docs/text-chat
- * @param {object} [options] - { maxTokens } 파이프라인 등 장문 응답 시 4096 권장
+ * @param {object} [options] - { maxTokens, temperature } 파이프라인: 4096, temperature 0.82 권장
  */
 async function callGroq(messages, systemPrompt, options = {}) {
   const { groq } = AI_CONFIG;
   const maxTokens = options.maxTokens ?? 1000;
+  const temperature = typeof options.temperature === 'number' ? options.temperature : 0.7;
 
   if (!groq.apiKey) {
     throw new AppError(
@@ -168,7 +170,7 @@ async function callGroq(messages, systemPrompt, options = {}) {
         { role: 'system', content: systemPrompt },
         ...messages,
       ],
-      temperature: 0.7,
+      temperature,
       max_tokens: maxTokens,
     }),
   });
@@ -193,11 +195,12 @@ async function callGroq(messages, systemPrompt, options = {}) {
 /**
  * xAI Grok API 호출 (OpenAI 호환, Gemini 보완용)
  * https://api.x.ai/v1/chat/completions
- * @param {object} [options] - { maxTokens } 파이프라인 등 장문 응답 시 4096 권장
+ * @param {object} [options] - { maxTokens, temperature } 파이프라인: 4096, temperature 0.82 권장
  */
 async function callGrok(messages, systemPrompt, options = {}) {
   const { grok } = AI_CONFIG;
   const maxTokens = options.maxTokens ?? 1000;
+  const temperature = typeof options.temperature === 'number' ? options.temperature : 0.7;
 
   if (!grok.apiKey) {
     throw new AppError(
@@ -219,7 +222,7 @@ async function callGrok(messages, systemPrompt, options = {}) {
         { role: 'system', content: systemPrompt },
         ...messages,
       ],
-      temperature: 0.7,
+      temperature,
       stream: false,
       max_tokens: maxTokens,
     }),
@@ -244,11 +247,12 @@ async function callGrok(messages, systemPrompt, options = {}) {
 
 /**
  * Upstage Solar API 호출 (OpenAI 호환, https://api.upstage.ai/v2)
- * @param {object} [options] - { maxTokens } 파이프라인 등 장문 응답 시 4096 권장
+ * @param {object} [options] - { maxTokens, temperature } 파이프라인: 4096, temperature 0.82 권장
  */
 async function callUpstage(messages, systemPrompt, options = {}) {
   const { upstage } = AI_CONFIG;
   const maxTokens = options.maxTokens ?? 1000;
+  const temperature = typeof options.temperature === 'number' ? options.temperature : 0.7;
 
   if (!upstage.apiKey) {
     throw new AppError(
@@ -270,7 +274,7 @@ async function callUpstage(messages, systemPrompt, options = {}) {
         { role: 'system', content: systemPrompt },
         ...messages,
       ],
-      temperature: 0.7,
+      temperature,
       stream: false,
       max_tokens: maxTokens,
     }),
@@ -295,11 +299,12 @@ async function callUpstage(messages, systemPrompt, options = {}) {
 
 /**
  * Gemini API 호출
- * @param {object} [options] - { maxTokens } 파이프라인 등 장문 응답 시 4096 권장
+ * @param {object} [options] - { maxTokens, temperature } 파이프라인: 4096, temperature 0.82 권장
  */
 async function callGemini(prompt, systemInstruction, options = {}) {
   const { gemini } = AI_CONFIG;
   const maxTokens = options.maxTokens ?? 1000;
+  const temperature = typeof options.temperature === 'number' ? options.temperature : 0.7;
 
   if (!gemini.apiKey) {
     throw new AppError(
@@ -323,7 +328,7 @@ async function callGemini(prompt, systemInstruction, options = {}) {
           }],
         }],
         generationConfig: {
-          temperature: 0.7,
+          temperature,
           maxOutputTokens: maxTokens,
         },
       }),
@@ -459,6 +464,7 @@ export async function generatePipelineResponse({
   domainContexts = {},
   sourcesUsed = [],
   interests,
+  mbti,
 }) {
   const languageMap = { ko: '한국어', en: 'English', ja: '日本語' };
   const lang = languageMap[language] || '한국어';
@@ -469,46 +475,55 @@ export async function generatePipelineResponse({
     .map((id) => `[${id}]\n${domainContexts[id]}`)
     .join('\n\n');
 
-  const systemPrompt = `당신은 **오케스트레이터**입니다. 6개 도메인(사주·심리·MBTI·타로·버크만·다크 심리학)의 소스를 각각 해당 섹션에만 반영하고, 사용자 질문에 맞춰 섹션별로 4문장 이상의 조언을 만든 뒤, 종합 인사이트(summary)와 앞으로 나아갈 길(path)을 도출합니다.
+  const audienceHint = [interests && (Array.isArray(interests) ? interests.join(', ') : String(interests).trim()), mbti && String(mbti).trim()].filter(Boolean).join(' · ');
+  const audienceLine = audienceHint ? `\n[맞춤 맥락] 관심사·MBTI 등: ${audienceHint}. 이 맥락을 반영해 톤·비유·예시를 구체화하세요.\n` : '';
+
+  const systemPrompt = `당신은 **오케스트레이터이자 Dev Agent**입니다. 6개 도메인(사주·심리·MBTI·타로·버크만·다크 심리학)의 소스를 각각 해당 섹션에만 반영하고, 사용자 질문에 맞춰 **섬세하고 창의적인** 섹션별 조언을 만든 뒤, 종합 인사이트(summary)와 앞으로 나아갈 길(path)을 한 편의 글로 도출합니다.
+${audienceLine}
+
+【창의성·섬세함 (Dev Agent 역할)】
+- 각 섹션을 **해당 분야 전문가**처럼 씁시다: 사주는 만세력 해석가, 심리는 상담사, MBTI는 성격 해석가, 타로는 직관 리더, 버크만은 행동 코치, 다크 심리는 자기보호 교육자.
+- **금지**: 뻔한 클리셰("잘 될 거예요", "마음을 열어보세요"만 반복), 일반론만 나열, 섹션마다 비슷한 문장 구조·표현 반복.
+- **권장**: 질문에 담긴 **상황·감정·갈등**을 읽고, 그에 맞는 **구체적 비유·예시·한두 가지 행동 제안**을 넣기. 관심사·MBTI가 있으면 그에 맞는 톤과 예시로 맞춤화.
+- **종합 인사이트(summary)**와 **앞으로 나아갈 길(path)**은 6개 섹션을 짜맞춘 **한 편의 글이 되도록** 자연스럽게 연결하고, 사용자가 "내 이야기"라고 느낄 수 있는 문장을 포함하세요.
 
 【필수·최우선 규칙】summary와 sections의 "모든" 항목(saju, psychology, mbti, tarot, birkman, dark_psychology, path)은 각각 "반드시 4문장 이상"으로 작성해야 합니다. 1~3문장만 쓰면 규칙 위반입니다. 문장은 마침표(.)·느낌표(!)·물음표(?)로 끝나는 단위이며, 각 JSON 문자열 값에는 그런 문장이 최소 4개 이상 들어가야 합니다.
 
 【섹션별 소스 매핑 (반드시 준수)】
-- **saju** 섹션: 아래 [saju] 블록만 참고하여, 사주(만세력)·오행·해석을 사용자 질문에 맞게 4문장 이상으로 작성. 다른 도메인 소스 사용 금지.
-- **psychology** 섹션: 아래 [psychology] 블록만 참고하여, 심리상담 관점(인지·정서·행동)으로 사용자 질문에 맞게 4문장 이상 작성.
-- **mbti** 섹션: 아래 [mbti] 블록만 참고하여, MBTI 유형과 질문에 맞는 인사이트를 4문장 이상 작성.
-- **tarot** 섹션: 아래 [tarot] 블록만 참고하여, 타로 에너지·카드 의미를 질문에 맞게 4문장 이상 작성.
-- **birkman** 섹션: 아래 [birkman] 블록만 참고하여, 행동 스타일·욕구·스트레스 반응 관점으로 4문장 이상 작성.
-- **dark_psychology** 섹션: 아래 [dark_psychology] 블록만 참고하여, 교육·자기보호 관점으로 4문장 이상 작성. 상대 공격이 아닌 자신 보호용.
-- **path** 섹션: 위 6개 섹션의 내용을 종합하여, 사용자 질문에 대한 구체적·실행 가능한 "앞으로 나아갈 길"을 4문장 이상 작성. 우선순위·단계·일상 실천을 포함.
+- **saju**: 아래 [saju] 블록만 참고. 사주·오행·해석을 질문에 맞게 **구체적 비유나 시즌·에너지 표현**을 살려 4문장 이상.
+- **psychology**: [psychology] 블록만 참고. 인지·정서·행동을 질문 상황에 **맞춘 구체적 예시**로 4문장 이상.
+- **mbti**: [mbti] 블록만 참고. 유형별 강점·주의점을 질문에 **연결한 인사이트**로 4문장 이상.
+- **tarot**: [tarot] 블록만 참고. 블록에 "이번 분석에서 참고한 타로 카드"가 있으면 **과거·현재·미래 3장을 각각 카드 이름과 위치를 명시**하며, 역방향이면 역방향 의미를 반영하고, **사용자 질문과 어떻게 연관되는지 구체적으로 상세 해석**할 것. 카드별로 1~2문장 이상 + 질문과의 연계를 포함해 전체 4문장 이상.
+- **birkman**: [birkman] 블록만 참고. 행동·욕구·스트레스 반응을 **일상 장면**에 비춰 4문장 이상.
+- **dark_psychology**: [dark_psychology] 블록만 참고. 교육·자기보호 관점으로 **구체적 경계·선택 예시**를 넣어 4문장 이상.
+- **path**: 위 6개를 종합해, **질문에 딱 맞는** 우선순위·단계·일상 실천을 **한두 가지 구체적 행동**까지 담아 4문장 이상.
 
-아래는 도메인별 측정 소스입니다. 각 블록은 해당 이름의 섹션에서만 사용하세요. 어떤 도메인 블록이 없으면, 그 섹션은 해당 도메인 관점의 일반적 조언을 4문장 이상으로 작성하세요.
-${sourceBlocks ? `\n=== 도메인별 소스 (섹션과 1:1 대응) ===\n${sourceBlocks}` : '\n(제공된 소스 없음. 각 섹션은 해당 도메인 관점의 일반적 조언을 4문장 이상으로 작성하세요.)'}
+아래는 도메인별 측정 소스입니다. 각 블록은 해당 이름의 섹션에서만 사용하세요. 어떤 도메인 블록이 없으면, 그 섹션은 해당 도메인 관점의 **창의적 일반 조언**을 4문장 이상으로 작성하세요.
+${sourceBlocks ? `\n=== 도메인별 소스 (섹션과 1:1 대응) ===\n${sourceBlocks}` : '\n(제공된 소스 없음. 각 섹션은 해당 도메인 관점의 창의적 조언을 4문장 이상으로 작성하세요.)'}
 
 기타 규칙:
 1. 반드시 ${lang}로 답변하세요.
-2. 현대적·친근한 말투, 구체적·현실적인 행동 제안을 포함하세요.
-3. **summary**: 위 6개 섹션 + path를 요약한 "종합 인사이트" 4문장 이상. 사용자 질문에 대한 핵심 결론과 지금 무엇을 우선할지 담을 것.
+2. **summary**: 6개 섹션 + path를 요약한 "종합 인사이트" 4문장 이상. 사용자 질문에 대한 **핵심 결론·감정 인정·지금 무엇을 우선할지**를 한 문장씩 담아, 읽는 이가 공감할 수 있게.
 
 **출력 형식 (반드시 준수)**: 아래 JSON만 출력하고, 그 외 설명·마크다운 없이 한 덩어리로 출력하세요. 각 문자열 값은 반드시 4문장 이상이어야 합니다.
 {
-  "summary": "종합 인사이트(4문장 이상). 6개 관점 + path 요약, 사용자 질문에 대한 핵심 결론.",
+  "summary": "종합 인사이트(4문장 이상). 질문에 대한 핵심 결론·감정 인정·우선할 일을 공감 가능하게.",
   "sections": {
-    "saju": "사주 관점 조언(4문장 이상). [saju] 소스만 사용.",
-    "psychology": "심리상담 관점 조언(4문장 이상). [psychology] 소스만 사용.",
-    "mbti": "MBTI 관점 조언(4문장 이상). [mbti] 소스만 사용.",
-    "tarot": "타로 관점 조언(4문장 이상). [tarot] 소스만 사용.",
-    "birkman": "버크만 관점 조언(4문장 이상). [birkman] 소스만 사용.",
-    "dark_psychology": "다크 심리학(교육·자기보호) 관점 조언(4문장 이상). [dark_psychology] 소스만 사용.",
-    "path": "앞으로 나아갈 길(4문장 이상). 위 6개 섹션 종합, 구체적 실행 제안."
+    "saju": "사주 관점 조언(4문장 이상). [saju] 소스만 사용. 구체적 비유·에너지 표현.",
+    "psychology": "심리상담 관점 조언(4문장 이상). [psychology] 소스만 사용. 상황 맞춤 예시.",
+    "mbti": "MBTI 관점 조언(4문장 이상). [mbti] 소스만 사용. 유형과 질문 연결.",
+    "tarot": "타로 관점 조언(4문장 이상). [tarot]의 3장(과거·현재·미래)을 각각 카드명·위치를 밝히며 상세 해석하고, 질문과 연계. 역방향 반영.",
+    "birkman": "버크만 관점 조언(4문장 이상). [birkman] 소스만 사용. 일상 장면.",
+    "dark_psychology": "다크 심리학(교육·자기보호) 관점 조언(4문장 이상). [dark_psychology] 소스만 사용. 경계·선택 예시.",
+    "path": "앞으로 나아갈 길(4문장 이상). 6개 섹션 종합, 구체적 행동 1~2개 포함."
   }
 }
 최종 확인: summary, saju, psychology, mbti, tarot, birkman, dark_psychology, path 각각 문장 4개 이상 포함했는지 검증 후 출력하세요.`;
 
-  const pipelineUserMessage = `【필수】아래 답변에서 summary와 sections의 모든 항목(saju, psychology, mbti, tarot, birkman, dark_psychology, path)은 각각 반드시 4문장 이상으로 작성해 주세요. 1~3문장만 쓰면 안 됩니다.\n\n${userQuery}`;
+  const pipelineUserMessage = `【필수】summary와 sections의 모든 항목은 각각 4문장 이상으로, 질문에 담긴 상황·감정을 읽어 **창의적·맞춤형**으로 작성해 주세요.\n\n${userQuery}`;
   const messages = [{ role: 'user', content: pipelineUserMessage }];
   const provider = AI_CONFIG.provider;
-  const pipelineOptions = { maxTokens: PIPELINE_MAX_TOKENS };
+  const pipelineOptions = { maxTokens: PIPELINE_MAX_TOKENS, temperature: 0.82 };
 
   let rawResponse;
   if (provider === 'openai') {

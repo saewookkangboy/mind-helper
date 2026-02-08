@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, Link } from 'react-router-dom';
 
@@ -128,9 +128,11 @@ export default function AnalysisResult() {
   const state = location.state;
 
   const [modal, setModal] = useState(null);
-  /** 카드 없을 때 "카드 이미지 보기" 클릭 시 드로우 API로 받은 카드 (모달 표시용) */
+  /** 카드 없을 때 "카드 이미지 보기" 클릭 시 드로우 API로 받은 카드 (모달 표시용). 모달 닫아도 유지 → 재오픈 시 같은 카드 표시 */
   const [drawnCardsForModal, setDrawnCardsForModal] = useState([]);
   const [tarotModalLoading, setTarotModalLoading] = useState(false);
+  /** 폴백 드로우용 시드: 세션당 1회 생성·유지 → 랜덤으로 바뀌지 않음 */
+  const fallbackTarotSeedRef = useRef(null);
 
   let data;
   try {
@@ -186,6 +188,7 @@ export default function AnalysisResult() {
         sessionStorage.removeItem(RESULT_RESPONSE_STORAGE_KEY);
         sessionStorage.removeItem(RESULT_SUMMARY_STORAGE_KEY);
         sessionStorage.removeItem(RESULT_SECTIONS_STORAGE_KEY);
+        sessionStorage.removeItem('mindHelper_tarot_fallback_seed');
       } catch (_) {}
     };
   }, []);
@@ -211,9 +214,21 @@ export default function AnalysisResult() {
       setModal({ type: 'detail', section: 'tarot' });
       return;
     }
+    if (drawnCardsForModal.length > 0) {
+      setModal({ type: 'detail', section: 'tarot' });
+      return;
+    }
     setTarotModalLoading(true);
     try {
-      const res = await apiGet('/tarot/draw?seed=' + Date.now());
+      if (!fallbackTarotSeedRef.current) {
+        const stored = typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('mindHelper_tarot_fallback_seed') : null;
+        fallbackTarotSeedRef.current = stored || (() => {
+          const s = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `fb-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+          try { sessionStorage.setItem('mindHelper_tarot_fallback_seed', s); } catch (_) {}
+          return s;
+        })();
+      }
+      const res = await apiGet('/tarot/draw?seed=' + encodeURIComponent(fallbackTarotSeedRef.current));
       const cards = res?.data?.cards ?? [];
       setDrawnCardsForModal(cards);
       setModal({ type: 'detail', section: 'tarot' });
@@ -226,7 +241,6 @@ export default function AnalysisResult() {
 
   const closeModal = () => {
     setModal(null);
-    setDrawnCardsForModal([]);
   };
 
   return (
