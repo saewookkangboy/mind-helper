@@ -1,0 +1,30 @@
+---
+description: dev-agent-kit 워크플로 - 사양·To-do·역할·SEO/GEO 연동 및 서브에이전트 위임 가이드
+alwaysApply: false
+globs: "**/*.{md,mdx,json}"
+---
+
+# Dev Agent Kit 연동
+
+이 프로젝트는 [dev-agent-kit](https://github.com/saewookkangboy/dev-agent-kit) 워크플로를 지원합니다.
+
+## 서브에이전트 위임
+
+다음 작업이 필요할 때 **Dev Agent Kit** 또는 **Spec & To-do** 서브에이전트 위임을 고려하세요.
+
+- 사양/요구사항 문서 작성·갱신·검증
+- To-do·마일스톤 목록 정리 또는 산출
+- 역할 기반 개발 가이드(PM, Frontend, Backend 등)
+- SEO, AI SEO, GEO, AIO 분석·제안
+- API 키/환경 변수 보안 관례 안내
+
+## 프로젝트 구조
+
+- **문서**: 루트 `docs/`, `AI_Saju_Coaching_PRD.md`
+- **워크스페이스**: `frontend`, `admin`, `backend`, `shared`
+- dev-agent-kit CLI 사용 시: 루트에서 `npx dev-agent` 또는 전역 설치 후 `dev-agent` 실행
+
+## 규칙
+
+- 사양·To-do 관련 대량 산출물은 서브에이전트로 분리해 컨텍스트를 절약하세요.
+- 새 사양 문서는 기존 `docs/` 스타일을 따르고, 파일명은 대문자·언더스코어(예: `FEATURE_SPEC.md`)를 권장합니다.

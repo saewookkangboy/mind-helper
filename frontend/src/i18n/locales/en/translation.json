@@ -1,0 +1,47 @@
+{
+  "common": {
+    "welcome": "Welcome to Fortune Mate",
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "retry": "Retry"
+  },
+  "auth": {
+    "signIn": "Sign In",
+    "signOut": "Sign Out",
+    "signInWithGoogle": "Sign in with Google",
+    "signInWithApple": "Sign in with Apple",
+    "guestMode": "Try as Guest"
+  },
+  "onboarding": {
+    "title": "Meet Your Spiritual Life Coach",
+    "subtitle": "Please enter your birth date, time, and persona",
+    "birthDate": "Birth Date",
+    "birthTime": "Birth Time",
+    "mbti": "MBTI Type",
+    "interests": "Interests",
+    "currentConcern": "Current Concern",
+    "voiceInput": "Voice Input",
+    "submit": "Get Started"
+  },
+  "dashboard": {
+    "title": "Today's Fortune",
+    "dailyQuest": "Daily Quest",
+    "level": "Level",
+    "exp": "EXP",
+    "streak": "Streak"
+  },
+  "coaching": {
+    "title": "AI Coaching",
+    "career": "Career",
+    "love": "Love",
+    "today": "Today's Fortune",
+    "askQuestion": "Ask Question",
+    "voiceChat": "Voice Chat"
+  },
+  "nav": {
+    "home": "Home",
+    "coaching": "Coaching",
+    "profile": "Profile",
+    "settings": "Settings"
+  }
+}

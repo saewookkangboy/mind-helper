@@ -1,0 +1,3 @@
+# 만세력/사주 계산 (KARI 음력 데이터)
+# 로컬 설치: pip install /path/to/korean_lunar_calendar-0.3.1.tar.gz
+korean-lunar-calendar==0.3.1

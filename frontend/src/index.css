@@ -1,0 +1,86 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-gradient-to-br from-gray-900 via-purple-900 to-blue-900 text-white;
+    @apply min-h-screen;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  }
+}
+
+@layer components {
+  /* Liquid Glass Card */
+  .glass-card {
+    @apply backdrop-blur-xl bg-glass-light border border-white/20;
+    @apply rounded-2xl shadow-2xl;
+    @apply transition-all duration-300;
+    box-shadow: 
+      0 8px 32px 0 rgba(31, 38, 135, 0.37),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+  }
+  
+  .glass-card:hover {
+    @apply bg-glass-medium border-white/30;
+    transform: translateY(-2px);
+    box-shadow: 
+      0 12px 40px 0 rgba(31, 38, 135, 0.5),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+  }
+  
+  /* Aurora Background */
+  .aurora-bg {
+    background: linear-gradient(
+      135deg,
+      rgba(139, 92, 246, 0.3) 0%,
+      rgba(236, 72, 153, 0.3) 50%,
+      rgba(59, 130, 246, 0.3) 100%
+    );
+    background-size: 200% 200%;
+    animation: aurora 10s ease-in-out infinite;
+  }
+  
+  /* Liquid Flow Effect */
+  .liquid-flow {
+    @apply absolute inset-0 rounded-full;
+    @apply bg-gradient-aurora opacity-30;
+    animation: liquid 8s ease-in-out infinite;
+    filter: blur(60px);
+  }
+  
+  /* Glass Button */
+  .glass-button {
+    @apply glass-card px-6 py-3;
+    @apply font-semibold text-white;
+    @apply hover:bg-glass-medium active:scale-95;
+    @apply transition-all duration-200;
+  }
+  
+  /* Frosted Glass Input */
+  .glass-input {
+    @apply backdrop-blur-md bg-glass-dark border border-white/20;
+    @apply rounded-xl px-4 py-3 text-white placeholder-white/50;
+    @apply focus:outline-none focus:ring-2 focus:ring-purple-500/50;
+    @apply transition-all duration-200;
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    @apply bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400;
+    @apply bg-clip-text text-transparent;
+  }
+  
+  .iridescent {
+    background: linear-gradient(
+      45deg,
+      rgba(139, 92, 246, 0.8),
+      rgba(236, 72, 153, 0.8),
+      rgba(59, 130, 246, 0.8),
+      rgba(6, 182, 212, 0.8)
+    );
+    background-size: 300% 300%;
+    animation: aurora 8s ease-in-out infinite;
+  }
+}

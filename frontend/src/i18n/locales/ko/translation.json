@@ -1,0 +1,49 @@
+{
+  "common": {
+    "welcome": "Fortune Mate에 오신 것을 환영합니다",
+    "loading": "로딩 중...",
+    "error": "오류가 발생했습니다",
+    "retry": "다시 시도"
+  },
+  "auth": {
+    "signIn": "로그인",
+    "signOut": "로그아웃",
+    "signInWithGoogle": "구글로 로그인",
+    "signInWithApple": "애플로 로그인",
+    "guestMode": "게스트 모드로 체험하기"
+  },
+  "onboarding": {
+    "title": "나만의 영적 라이프 코치를 만나보세요",
+    "subtitle": "생년월일시와 페르소나를 입력해주세요",
+    "birthDate": "생년월일",
+    "birthTime": "생시",
+    "mbti": "MBTI 유형",
+    "interests": "관심사",
+    "currentConcern": "현재 고민",
+    "voiceInput": "음성 입력",
+    "submit": "시작하기"
+  },
+  "dashboard": {
+    "title": "오늘의 운세",
+    "dailyQuest": "오늘의 퀘스트",
+    "level": "레벨",
+    "exp": "경험치",
+    "streak": "연속 출석",
+    "mySaju": "나의 사주"
+  },
+  "coaching": {
+    "title": "AI 코칭",
+    "career": "진로/취업",
+    "love": "연애",
+    "today": "오늘의 운세",
+    "askQuestion": "질문하기",
+    "voiceChat": "음성 채팅",
+    "send": "전송"
+  },
+  "nav": {
+    "home": "홈",
+    "coaching": "코칭",
+    "profile": "프로필",
+    "settings": "설정"
+  }
+}
