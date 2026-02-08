@@ -280,11 +280,14 @@ GET /health
 
 ## 배포
 
-### Frontend (Vercel/Netlify)
+### Frontend (Vercel)
+- **Root Directory**를 `frontend`로 설정한 뒤 Vercel에 연결하면 빌드·SPA 라우팅이 자동 적용됩니다.
+- 상세 절차: [Vercel 배포 가이드](./docs/VERCEL_DEPLOY.md)
+
 ```bash
 cd frontend
 npm run build
-# dist 폴더를 배포
+# Vercel 대시보드에서 Root Directory = frontend 로 설정 후 배포
 ```
 
 ### Backend (Railway/Heroku)
@@ -298,6 +301,7 @@ npm start
 - [구조 분석 및 개선 제안](./docs/ARCHITECTURE_ANALYSIS.md)
 - [개선 제안 상세 문서](./docs/IMPROVEMENT_PROPOSAL.md)
 - [빠른 시작 가이드](./docs/QUICK_START.md)
+- [Vercel 배포 가이드](./docs/VERCEL_DEPLOY.md)
 - [Dev Agent Kit 연동](./docs/DEV_AGENT_KIT.md) — Spec-kit, To-do, Agent Roles, SEO/GEO 및 Cursor 서브에이전트
 
 ## 최근 개선 사항 (v2.0)

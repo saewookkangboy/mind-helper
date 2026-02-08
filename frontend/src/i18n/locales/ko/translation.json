@@ -119,6 +119,10 @@
     "helpPath": "앞으로 나아갈 길은 사주·심리·MBTI·타로·버크만·다크 심리학 등 여러 관점을 종합해, 귀하의 질문과 상황에 맞는 방향과 실천을 제안한 부분입니다. 우선순위와 단계를 구체적으로 정리했습니다.",
     "detailPath": "우선순위와 실천 단계를 구체적으로 정리한 내용입니다. 아래 AI 종합 분석에서 전체 맥락을 확인하실 수 있습니다.",
     "tarotCardsTitle": "이번 분석에서 뽑은 카드",
+    "viewTarotCards": "이번 분석 카드 보기",
+    "viewTarotCardImages": "카드 이미지 보기",
+    "tarotNoCards": "이번 분석에서 뽑은 카드가 없습니다. 새로 코칭을 진행하면 타로 카드가 표시됩니다.",
+    "tarotLoading": "카드 뽑는 중…",
     "tarotReversed": "역방향",
     "redoCoaching": "AI 코칭 다시 하기"
   },

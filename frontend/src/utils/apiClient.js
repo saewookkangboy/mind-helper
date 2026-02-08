@@ -5,9 +5,9 @@
  */
 
 // 개발 시 Vite 프록시 사용(같은 origin → CORS 없음). 프로덕션은 VITE_API_BASE_URL 사용
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
   || (import.meta.env.DEV ? '' : 'http://localhost:4001');
-const API_VERSION = import.meta.env.VITE_API_VERSION || 'v1';
+export const API_VERSION = import.meta.env.VITE_API_VERSION || 'v1';
 
 /** API 에러 코드별 사용자 노출 메시지 (다국어는 i18n 확장 가능) */
 export const API_ERROR_USER_MESSAGES = {
@@ -143,6 +143,17 @@ export async function apiPut(endpoint, data) {
  */
 export async function apiDelete(endpoint) {
   return apiRequest(endpoint, { method: 'DELETE' });
+}
+
+/**
+ * 타로 카드 이미지 프록시 URL (외부 raw URL 차단·CORS 회피)
+ * @param {string} cardId - 카드 id (kebab-case, 예: the-fool)
+ * @returns {string}
+ */
+export function getTarotImageProxyUrl(cardId) {
+  if (!cardId) return '';
+  const base = API_BASE_URL || '';
+  return `${base}/api/${API_VERSION}/tarot/cards/${encodeURIComponent(String(cardId))}/image`;
 }
 
 /**

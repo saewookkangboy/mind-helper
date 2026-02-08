@@ -118,6 +118,10 @@
     "helpPath": "Your path forward is a direction and action plan suggested by combining Saju, psychology, MBTI, Tarot, Birkman, and dark psychology. Priorities and steps are summarized here.",
     "detailPath": "Priorities and concrete action steps are summarized here. See the full AI analysis below for full context.",
     "tarotCardsTitle": "Cards drawn for this reading",
+    "viewTarotCards": "View cards from this reading",
+    "viewTarotCardImages": "View card images",
+    "tarotNoCards": "No cards were drawn for this reading. Start a new coaching session to see tarot cards.",
+    "tarotLoading": "Drawing cards…",
     "tarotReversed": "Reversed",
     "redoCoaching": "Start AI coaching again"
   },
