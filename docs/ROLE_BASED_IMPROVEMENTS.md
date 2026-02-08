@@ -2,6 +2,8 @@
 
 이 문서는 dev-agent-kit 워크플로에 따라 **역할(PM, Frontend, Backend, Server/DB, Security, UI/UX, AI Marketing)**별로 정리한 개선·고도화 항목과 수행 결과를 담습니다.
 
+**에이전트 팀 오케스트레이션**: 서비스 전반 최적화·전체 개선은 **Orchestrator(팀 리드)** 가 역할을 배정하고 조율합니다. 팀 구성·위임 규칙은 [AGENT_ORCHESTRATION.md](./AGENT_ORCHESTRATION.md)를 참고하세요.
+
 ---
 
 ## 1. PM (Spec-kit / To-do)
