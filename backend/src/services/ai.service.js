@@ -98,8 +98,21 @@ async function callOpenAI(messages, systemPrompt) {
   });
 
   if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error?.message || 'OpenAI API 호출 실패');
+    const error = await response.json().catch(() => ({}));
+    const message = error.error?.message || 'OpenAI API 호출 실패';
+    const code = error.error?.code;
+    // 할당량/결제 초과 시 클라이언트에 안내 메시지 반환
+    if (
+      code === 'insufficient_quota' ||
+      /quota|billing|exceeded your current quota/i.test(message)
+    ) {
+      throw new AppError(
+        '일시적으로 요청 한도를 초과했습니다. 잠시 후 다시 시도해 주세요.',
+        503,
+        ErrorCodes.AI_QUOTA_EXCEEDED
+      );
+    }
+    throw new AppError(message, response.status >= 500 ? 503 : 502, ErrorCodes.AI_SERVICE_ERROR);
   }
 
   const data = await response.json();

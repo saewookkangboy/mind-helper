@@ -53,6 +53,8 @@ export default function Coaching() {
   });
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef(null);
+  const nextIdRef = useRef(2);
+  const nextId = () => nextIdRef.current++;
 
   const lang = (i18n.language || 'ko').split(/[-_]/)[0];
   const language = ['ko', 'en', 'ja'].includes(lang) ? lang : 'ko';
@@ -69,7 +71,7 @@ export default function Coaching() {
     setMessages((prev) => [
       ...prev,
       {
-        id: Date.now(),
+        id: nextId(),
         text,
         isUser: false,
         timestamp: new Date(),
@@ -82,7 +84,7 @@ export default function Coaching() {
     if (!text.trim() || isLoading) return;
 
     const userMessage = {
-      id: Date.now(),
+      id: nextId(),
       text: text.trim(),
       isUser: true,
       timestamp: new Date(),

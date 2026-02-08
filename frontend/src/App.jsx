@@ -20,7 +20,7 @@ function App() {
   }, [i18n, savedLanguage]);
 
   return (
-    <BrowserRouter>
+    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <div className="min-h-screen">
         <Navbar />
         <Routes>
