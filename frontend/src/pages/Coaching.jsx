@@ -174,19 +174,35 @@ export default function Coaching() {
         const responseText = typeof pipelineResult === 'object' && pipelineResult?.response != null
           ? pipelineResult.response
           : String(pipelineResult);
+        const responseSummary = typeof pipelineResult === 'object' && typeof pipelineResult?.responseSummary === 'string'
+          ? pipelineResult.responseSummary
+          : '';
+        const responseSections = typeof pipelineResult === 'object' && pipelineResult?.responseSections && typeof pipelineResult.responseSections === 'object'
+          ? pipelineResult.responseSections
+          : {};
         const sourcesUsed = typeof pipelineResult === 'object' && Array.isArray(pipelineResult?.sourcesUsed)
           ? pipelineResult.sourcesUsed
           : [];
 
         appendBotMessage(language === 'ko' ? '분석이 완료되었습니다. 결과 페이지로 이동합니다.' : language === 'ja' ? '分析が完了しました。結果ページへ移動します。' : 'Analysis complete. Redirecting to results.');
 
+        const resultPayload = { response: responseText, responseSummary, responseSections };
+        try {
+          sessionStorage.setItem('mindHelper_result_response', responseText);
+          sessionStorage.setItem('mindHelper_result_summary', responseSummary);
+          sessionStorage.setItem('mindHelper_result_sections', JSON.stringify(responseSections));
+        } catch (_) {}
         navigate('/result', {
           state: {
             saju,
             ohengAnalysis,
             interpretation,
             response: responseText,
+            responseSummary,
+            responseSections,
             sourcesUsed,
+            mbti: finalData.mbti || undefined,
+            interests: finalData.interests || undefined,
           },
         });
       }

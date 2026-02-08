@@ -107,6 +107,7 @@ Orchestrator가 "서비스 최적화" 요청을 처리할 때 따르는 흐름�
 ## 6. 참고 문서
 
 - 역할별 개선 항목·상태: `docs/ROLE_BASED_IMPROVEMENTS.md`
+- **보안·정보 보호**: `docs/SECURITY_AND_PRIVACY.md`
 - 구조적 개선 제안: `docs/IMPROVEMENT_PROPOSAL.md`
 - 아키텍처·개선 로드맵: `docs/ARCHITECTURE_ANALYSIS.md`
 - Dev Agent Kit 연동: `docs/DEV_AGENT_KIT.md`

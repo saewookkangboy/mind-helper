@@ -2,7 +2,7 @@
  * 인증 미들웨어
  */
 
-import { auth } from '../config/firebase-admin.js';
+import { auth, db } from '../config/firebase-admin.js';
 import { AppError, ErrorCodes } from '../../../shared/src/utils/errors.js';
 
 /**
@@ -22,10 +22,21 @@ export async function optionalAuthenticate(req, res, next) {
       return next();
     }
     const decodedToken = await auth.verifyIdToken(token);
+    const roles = Array.isArray(decodedToken.roles)
+      ? decodedToken.roles
+      : typeof decodedToken.roles === 'string'
+        ? [decodedToken.roles]
+        : [];
+    const role = decodedToken.role;
+    const isAdmin = decodedToken.admin === true || role === 'admin' || roles.includes('admin');
+
     req.user = {
       uid: decodedToken.uid,
       email: decodedToken.email,
       emailVerified: decodedToken.email_verified,
+      role,
+      roles,
+      isAdmin,
     };
     next();
   } catch (error) {
@@ -113,15 +124,24 @@ export async function requireAdmin(req, res, next) {
       );
     }
 
-    // TODO: Firestore에서 사용자 role 확인
-    // const userDoc = await db.collection('users').doc(req.user.uid).get();
-    // if (userDoc.data()?.role !== 'admin') {
-    //   throw new AppError(
-    //     'Admin access required',
-    //     403,
-    //     ErrorCodes.INSUFFICIENT_PERMISSIONS
-    //   );
-    // }
+    if (req.user.isAdmin) {
+      return next();
+    }
+
+    const userDoc = await db.collection('users').doc(req.user.uid).get();
+    const storedRole = userDoc.exists ? userDoc.data()?.role : null;
+    const normalizedRole = typeof storedRole === 'string' ? storedRole.toLowerCase() : null;
+
+    if (normalizedRole !== 'admin' && normalizedRole !== 'superadmin') {
+      throw new AppError(
+        'Admin access required',
+        403,
+        ErrorCodes.INSUFFICIENT_PERMISSIONS
+      );
+    }
+
+    req.user.role = normalizedRole;
+    req.user.isAdmin = true;
 
     next();
   } catch (error) {

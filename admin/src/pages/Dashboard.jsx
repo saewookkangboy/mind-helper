@@ -12,6 +12,7 @@ export default function AdminDashboard() {
     topKeywords: [],
   });
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     loadDashboardData();
@@ -19,6 +20,7 @@ export default function AdminDashboard() {
 
   const loadDashboardData = async () => {
     try {
+      setError('');
       // 총 사용자 수
       const usersSnapshot = await getDocs(collection(db, 'users'));
       const totalUsers = usersSnapshot.size;
@@ -68,6 +70,7 @@ export default function AdminDashboard() {
       });
     } catch (error) {
       console.error('대시보드 데이터 로드 실패:', error);
+      setError('대시보드 데이터를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.');
     } finally {
       setLoading(false);
     }
@@ -118,6 +121,27 @@ export default function AdminDashboard() {
     return (
       <div className="min-h-screen bg-gray-900 flex items-center justify-center">
         <div className="text-white text-xl">로딩 중...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center p-8">
+        <div className="max-w-md text-center space-y-4">
+          <h2 className="text-2xl font-semibold text-white">오류</h2>
+          <p className="text-gray-300">{error}</p>
+          <button
+            type="button"
+            onClick={() => {
+              setLoading(true);
+              loadDashboardData();
+            }}
+            className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-white/10 text-white hover:bg-white/20"
+          >
+            다시 시도
+          </button>
+        </div>
       </div>
     );
   }

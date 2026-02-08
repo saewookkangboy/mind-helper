@@ -31,9 +31,14 @@ if (process.env.VALIDATE_ENV === 'true') {
 const app = express();
 const PORT = process.env.PORT || 4001;
 
-// CORS 설정
+// CORS 설정 (개발 시 localhost 여러 포트 허용)
+const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173').split(',').map(s => s.trim());
 const corsOptions = {
-  origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
+  origin: (origin, cb) => {
+    if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
+    if (/^https?:\/\/localhost(:\d+)?$/.test(origin)) return cb(null, true);
+    cb(null, false);
+  },
   credentials: true,
 };
 

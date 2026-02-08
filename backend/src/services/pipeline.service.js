@@ -15,7 +15,7 @@ import { logger } from '../../../shared/src/utils/logger.js';
  * @param {string} [params.language='ko'] - 응답 언어 (ko|en|ja)
  * @param {string[]} [params.domainIds] - 적용할 도메인 ID. 미지정 시 전 도메인
  * @param {object} [params.userContext] - 도메인 소스 수집용 (birthDate, birthTime, timezone, mbti, userSaju)
- * @returns {Promise<{ response: string, sourcesUsed: string[], timestamp: string }>}
+ * @returns {Promise<{ response: string, responseSummary?: string, responseSections?: Record<string,string>, sourcesUsed: string[], timestamp: string }>}
  */
 export async function runPipeline({ userQuery, language = 'ko', domainIds, userContext = {} }) {
   const effectiveDomains = Array.isArray(domainIds) && domainIds.length > 0
@@ -33,7 +33,7 @@ export async function runPipeline({ userQuery, language = 'ko', domainIds, userC
     language,
   });
 
-  const response = await generatePipelineResponse({
+  const result = await generatePipelineResponse({
     userQuery,
     language,
     domainContexts: contexts,
@@ -44,8 +44,19 @@ export async function runPipeline({ userQuery, language = 'ko', domainIds, userC
   const timestamp = new Date().toISOString();
   logger.info('파이프라인 완료', { sourcesUsed, timestamp });
 
+  if (typeof result === 'object' && result !== null && 'response' in result) {
+    return {
+      response: result.response,
+      responseSummary: result.responseSummary ?? '',
+      responseSections: result.responseSections ?? {},
+      sourcesUsed,
+      timestamp,
+    };
+  }
   return {
-    response,
+    response: typeof result === 'string' ? result : '',
+    responseSummary: '',
+    responseSections: {},
     sourcesUsed,
     timestamp,
   };

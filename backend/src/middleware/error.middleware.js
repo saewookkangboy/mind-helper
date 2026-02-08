@@ -29,13 +29,16 @@ export function errorHandler(err, req, res, next) {
     });
   }
 
-  // 알 수 없는 에러인 경우
-  logger.error('처리되지 않은 에러 발생', {
+  // 알 수 없는 에러인 경우 (프로덕션에서는 스택 트레이스 미포함 — 정보 노출 방지)
+  const logPayload = {
     error: err.message,
-    stack: err.stack,
     path: req.path,
     method: req.method,
-  });
+  };
+  if (process.env.NODE_ENV !== 'production') {
+    logPayload.stack = err.stack;
+  }
+  logger.error('처리되지 않은 에러 발생', logPayload);
   
   res.status(500).json({
     success: false,

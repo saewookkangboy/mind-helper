@@ -16,8 +16,11 @@ export const EnvSchema = {
     FIREBASE_PROJECT_ID: { required: true, type: 'string' },
     FIREBASE_PRIVATE_KEY: { required: true, type: 'string' },
     FIREBASE_CLIENT_EMAIL: { required: true, type: 'string' },
-    AI_PROVIDER: { required: false, default: 'openai', type: 'string', enum: ['openai', 'gemini'] },
+    AI_PROVIDER: { required: false, default: 'groq', type: 'string', enum: ['openai', 'groq', 'grok', 'upstage', 'gemini'] },
     OPENAI_API_KEY: { required: false, type: 'string', condition: (env) => env.AI_PROVIDER === 'openai' },
+    GROQ_API_KEY: { required: false, type: 'string', condition: (env) => env.AI_PROVIDER === 'groq' },
+    GROK_API_KEY: { required: false, type: 'string', condition: (env) => env.AI_PROVIDER === 'grok' },
+    UPSTAGE_API_KEY: { required: false, type: 'string', condition: (env) => env.AI_PROVIDER === 'upstage' },
     GEMINI_API_KEY: { required: false, type: 'string', condition: (env) => env.AI_PROVIDER === 'gemini' },
   },
   // Frontend 필수 환경 변수

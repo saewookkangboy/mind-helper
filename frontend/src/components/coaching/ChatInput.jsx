@@ -1,15 +1,20 @@
 import { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useVoiceInput } from '../../hooks/useVoiceInput';
+import { getSpeechLang } from '../../utils/speech';
 
 export default function ChatInput({ onSendMessage, disabled = false }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [message, setMessage] = useState('');
   const textareaRef = useRef(null);
-  
-  const { isListening, transcript, toggleListening } = useVoiceInput((result) => {
-    setMessage(result);
-  });
+
+  const speechLang = getSpeechLang(i18n.language);
+  const { isListening, transcript, toggleListening, isSupported } = useVoiceInput(
+    (result) => {
+      setMessage(result);
+    },
+    { lang: speechLang }
+  );
   
   useEffect(() => {
     if (transcript && !isListening) {
@@ -61,7 +66,8 @@ export default function ChatInput({ onSendMessage, disabled = false }) {
           <button
             type="button"
             onClick={toggleListening}
-            className={`glass-button p-3 ${isListening ? 'bg-aurora-pink/30 animate-pulse' : ''}`}
+            disabled={!isSupported}
+            className={`glass-button p-3 ${isListening ? 'bg-aurora-pink/30 animate-pulse' : ''} ${!isSupported ? 'opacity-60 cursor-not-allowed' : ''}`}
             title={t('coaching.voiceChat')}
           >
             {isListening ? '🔴' : '🎤'}

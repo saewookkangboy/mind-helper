@@ -2,15 +2,14 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
-
-// TODO: 환경 변수로 이동 필요
+import { frontendEnv } from './env';
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "your-api-key",
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "your-auth-domain",
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "your-project-id",
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "your-storage-bucket",
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "your-messaging-sender-id",
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || "your-app-id"
+  apiKey: frontendEnv.VITE_FIREBASE_API_KEY,
+  authDomain: frontendEnv.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: frontendEnv.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: frontendEnv.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: frontendEnv.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: frontendEnv.VITE_FIREBASE_APP_ID,
 };
 
 // Firebase 초기화

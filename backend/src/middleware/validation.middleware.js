@@ -1,11 +1,19 @@
 /**
  * 입력 검증 미들웨어
+ * - 문자열 trim, 최대 길이, 타입·enum 검증
+ * - 보안: 사용자 입력 기본 정제(script 태그 제거) 적용
  */
 
 import { AppError, ErrorCodes } from '../../../shared/src/utils/errors.js';
 import { QueryTypes } from '../../../shared/src/types/index.js';
 import { ALL_DOMAIN_IDS } from '../../../shared/src/constants/index.js';
 import { SUPPORTED_LANGUAGES } from '../services/languageEmbedding.js';
+
+/** 문자열에서 <script>...</script> 패턴 제거 (기본 XSS 완화, 저장·AI 전달 전) */
+function stripScriptTags(str) {
+  if (typeof str !== 'string') return str;
+  return str.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '').trim();
+}
 
 /**
  * 요청 본문 검증
@@ -16,7 +24,14 @@ export function validateBody(schema) {
       const errors = [];
 
       for (const [field, rules] of Object.entries(schema)) {
-        const value = req.body[field];
+        let value = req.body[field];
+        if (value !== undefined && value !== null && typeof value === 'string') {
+          value = value.trim();
+          if (rules.type === 'string' && (field === 'userQuery' || field === 'comment')) {
+            value = stripScriptTags(value);
+          }
+          req.body[field] = value;
+        }
 
         // 필수 필드 체크
         if (rules.required && (value === undefined || value === null || value === '')) {

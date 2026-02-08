@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import GlassCard from '../components/ui/GlassCard';
@@ -6,11 +6,13 @@ import LiquidBackground from '../components/ui/LiquidBackground';
 import { useAuthStore } from '../store/useAuthStore';
 import { apiCalculateSaju } from '../utils/apiClient';
 import { calculateSaju, analyzeOheng, interpretSaju } from '../utils/sajuCalculator';
+import { useVoiceInput } from '../hooks/useVoiceInput';
+import { getSpeechLang, parseTimeFromSpeech } from '../utils/speech';
 
 export default function Onboarding() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
-  const { setGuest, setUser } = useAuthStore();
+  const { setGuest } = useAuthStore();
   
   const [formData, setFormData] = useState({
     birthDate: '',
@@ -20,8 +22,29 @@ export default function Onboarding() {
     currentConcern: '',
   });
   
-  const [isVoiceInput, setIsVoiceInput] = useState(false);
+  const [voiceMessage, setVoiceMessage] = useState('');
+  const [voiceText, setVoiceText] = useState('');
   const [sajuResult, setSajuResult] = useState(null);
+  const speechLang = getSpeechLang(i18n.language);
+
+  const { isListening, transcript, toggleListening, stopListening, isSupported } = useVoiceInput(
+    (result) => {
+      setVoiceText(result);
+    },
+    { lang: speechLang, continuous: false, interimResults: true }
+  );
+
+  useEffect(() => {
+    if (!voiceText) return;
+    const parsed = parseTimeFromSpeech(voiceText);
+    if (parsed) {
+      setFormData((prev) => ({ ...prev, birthTime: parsed }));
+      setVoiceMessage(t('onboarding.voiceApplied', { time: parsed }));
+      stopListening();
+    } else {
+      setVoiceMessage(t('onboarding.voiceInvalidTime'));
+    }
+  }, [voiceText, stopListening, t]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -68,14 +91,12 @@ export default function Onboarding() {
   };
 
   const handleVoiceInput = () => {
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-      setIsVoiceInput(true);
-      // TODO: Web Speech API 구현
-      alert('음성 입력 기능은 곧 지원됩니다');
-      setIsVoiceInput(false);
-    } else {
-      alert('이 브라우저는 음성 입력을 지원하지 않습니다');
+    if (!isSupported) {
+      setVoiceMessage(t('onboarding.voiceNotSupported'));
+      return;
     }
+    setVoiceMessage(isListening ? '' : t('onboarding.voiceHint'));
+    toggleListening();
   };
 
   return (
@@ -120,10 +141,17 @@ export default function Onboarding() {
                 <button
                   type="button"
                   onClick={handleVoiceInput}
-                  className="mt-2 glass-button text-sm"
+                  disabled={!isSupported}
+                  className={`mt-2 glass-button text-sm ${!isSupported ? 'opacity-60 cursor-not-allowed' : ''}`}
                 >
-                  🎤 {t('onboarding.voiceInput')}
+                  {isListening ? '🔴' : '🎤'} {isListening ? t('onboarding.voiceListening') : t('onboarding.voiceInput')}
                 </button>
+                <div className="mt-2 text-xs text-white/70 space-y-1">
+                  {voiceMessage && <p>{voiceMessage}</p>}
+                  {isListening && transcript && (
+                    <p className="text-aurora-pink/80">"{transcript}"</p>
+                  )}
+                </div>
               </div>
               
               <div>

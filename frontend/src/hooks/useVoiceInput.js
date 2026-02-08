@@ -1,8 +1,10 @@
 import { useState, useRef, useEffect } from 'react';
 
-export function useVoiceInput(onResult) {
+export function useVoiceInput(onResult, options = {}) {
+  const { lang = 'ko-KR', continuous = true, interimResults = true } = options;
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
+  const [isSupported, setIsSupported] = useState(true);
   const recognitionRef = useRef(null);
 
   useEffect(() => {
@@ -10,14 +12,16 @@ export function useVoiceInput(onResult) {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     
     if (!SpeechRecognition) {
+      setIsSupported(false);
       console.warn('이 브라우저는 음성 인식을 지원하지 않습니다');
       return;
     }
+    setIsSupported(true);
 
     const recognition = new SpeechRecognition();
-    recognition.continuous = true;
-    recognition.interimResults = true;
-    recognition.lang = 'ko-KR'; // 기본값, 나중에 언어 설정에 따라 변경 가능
+    recognition.continuous = continuous;
+    recognition.interimResults = interimResults;
+    recognition.lang = lang;
 
     recognition.onresult = (event) => {
       let interimTranscript = '';
@@ -57,10 +61,10 @@ export function useVoiceInput(onResult) {
         recognitionRef.current.stop();
       }
     };
-  }, [onResult]);
+  }, [onResult, lang, continuous, interimResults]);
 
   const startListening = () => {
-    if (recognitionRef.current && !isListening) {
+    if (recognitionRef.current && !isListening && isSupported) {
       try {
         recognitionRef.current.start();
         setIsListening(true);
@@ -89,6 +93,7 @@ export function useVoiceInput(onResult) {
   return {
     isListening,
     transcript,
+    isSupported,
     startListening,
     stopListening,
     toggleListening,

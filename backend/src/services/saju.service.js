@@ -1,12 +1,14 @@
 /**
  * 사주 서비스 - 만세력 기반 사주 계산
  * Python korean-lunar-calendar(KARI 음력 데이터) 스크립트를 호출합니다.
+ * 사주 산출 근거 명확화: 한국천문연구원 음양력정보 API(LrsrCldInfoService) 결과를 함께 반환합니다.
  */
 
 import { spawn } from 'child_process';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { logger } from '../../../shared/src/utils/logger.js';
+import { getLunCalInfoFromDate } from './kariLunar.service.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -55,7 +57,15 @@ export async function calculateSajuWithManseryeok(birthDate, birthTime, timezone
           resolve(result);
           return;
         }
-        resolve(result);
+        const solarDate = result.solarDateUsed || birthDate;
+        getLunCalInfoFromDate(solarDate)
+          .then((kariLunar) => {
+            if (kariLunar) {
+              result.kariLunarSource = kariLunar;
+            }
+            resolve(result);
+          })
+          .catch(() => resolve(result));
       } catch (e) {
         logger.error('만세력 사주 결과 파싱 실패', { stdout: stdout.slice(0, 200), err: e.message });
         resolve({ error: '사주 결과를 처리하는 중 오류가 발생했습니다.' });

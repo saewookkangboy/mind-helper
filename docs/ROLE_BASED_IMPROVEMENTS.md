@@ -4,6 +4,8 @@
 
 **에이전트 팀 오케스트레이션**: 서비스 전반 최적화·전체 개선은 **Orchestrator(팀 리드)** 가 역할을 배정하고 조율합니다. 팀 구성·위임 규칙은 [AGENT_ORCHESTRATION.md](./AGENT_ORCHESTRATION.md)를 참고하세요.
 
+**보안·정보 보호**: 보안 및 정보 보호 강화 정책·체크리스트는 [SECURITY_AND_PRIVACY.md](./SECURITY_AND_PRIVACY.md)를 참고하세요.
+
 ---
 
 ## 1. PM (Spec-kit / To-do)
@@ -20,6 +22,7 @@
 | 역할별 개선 사양 문서 작성 | ✅ 완료 | 본 문서 (ROLE_BASED_IMPROVEMENTS.md) |
 | IMPROVEMENT_PROPOSAL.md Phase와 역할 매핑 | ✅ 반영 | 아래 역할별 체크리스트 참고 |
 | To-do 중앙 관리 (선택) | 권장 | `.project-data/todos.json` 또는 이슈 트래커 |
+| 환경 변수 예시(.env.example) 보강 | ✅ 적용 | backend/admin 추가, frontend 갱신 |
 
 ### Phase–역할 매핑 (참고)
 
@@ -44,6 +47,9 @@
 | apiClient: API 에러 코드(code) 파싱 및 사용자 메시지 매핑 | ✅ 적용 | RATE_LIMIT_EXCEEDED, UNAUTHORIZED 등 |
 | 코칭 페이지: Rate Limit/인증 실패 시 안내 메시지 표시 | ✅ 적용 | aiService 연동 |
 | 공유 패키지(shared) 타입/상수 활용 확대 | 권장 | ErrorCodes, API_ENDPOINTS 등 |
+| 온보딩 음성 입력(Web Speech API) 구현 | ✅ 적용 | 생시 음성 입력 + 시간 파싱 |
+| 음성 입력 상태/지원 여부 UI | ✅ 적용 | 듣는 중 표시, 미지원 시 안내 |
+| Firebase 환경 변수 검증/경고 | ✅ 적용 | fallback 제거, 경고 로그 |
 
 ---
 
@@ -60,6 +66,7 @@
 | v1 라우터 구조화 | ✅ 이미 적용 | coaching, feedback, saju, admin 등 |
 | 인증/검증/에러/레이트리밋 미들웨어 | ✅ 이미 적용 | auth, validation, error, rateLimit |
 | 공유 errors/logger/constants 사용 | ✅ 이미 적용 | shared 패키지 참조 |
+| 관리자 권한 체크 (Custom Claims + Firestore role) | ✅ 적용 | requireAdmin 강화 |
 
 ---
 
@@ -93,6 +100,7 @@
 | Firebase 토큰 인증 (authenticate) | ✅ 이미 적용 | coaching 등 인증 필요 라우트 |
 | Rate Limiting (coaching, crawler, feedback) | ✅ 이미 적용 | shared RATE_LIMITS 상수 사용 |
 | 보안 헤더 (Helmet) | ✅ 적용 | X-Content-Type-Options, X-Frame-Options 등 |
+| 관리자 권한 검증 강화 | ✅ 적용 | Custom Claims + Firestore role fallback |
 
 ---
 
@@ -109,6 +117,7 @@
 | index.html 제목·설명·viewport | ✅ 적용 | Mind Helper, 서비스 설명, viewport |
 | lang 속성 (다국어 대응) | ✅ 적용 | html lang 동적 또는 기본 ko |
 | PWA manifest 연동 | ✅ 이미 적용 | public/manifest.json |
+| 온보딩 음성 입력 상태 표시 | ✅ 적용 | 듣는 중 텍스트, 인식 문구 |
 
 ---
 
@@ -134,9 +143,10 @@
 - **PM**: 본 사양 문서로 역할별 개선 항목 및 Phase 매핑 정리.
 - **Frontend**: apiClient 에러 코드 기반 사용자 메시지, 코칭 페이지 에러 안내.
 - **Backend**: 기존 구조 유지, 요청 로깅 미들웨어 추가.
+- **Backend**: 관리자 권한(Custom Claims + Firestore) 검증 강화.
 - **Server/DB**: 요청 로깅으로 운영·디버깅 용이성 확보.
 - **Security**: Helmet 도입으로 보안 헤더 강화.
-- **UI/UX**: index.html 제목·설명·viewport·lang 개선.
+- **UI/UX**: index.html 제목·설명·viewport·lang 개선, 온보딩 음성 입력 상태 표시.
 - **AI Marketing**: 메타·OG·트위터 카드 기본 설정.
 
 ---

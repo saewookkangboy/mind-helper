@@ -57,6 +57,8 @@ export async function executePipeline(req, res, next) {
       success: true,
       data: {
         response: result.response,
+        responseSummary: result.responseSummary ?? '',
+        responseSections: result.responseSections ?? {},
         sourcesUsed: result.sourcesUsed,
         timestamp: result.timestamp,
       },
