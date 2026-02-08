@@ -3,13 +3,13 @@
  * 6대 도메인(사주, 심리상담, MBTI, 타로, 버크만, 다크 심리학)의 결과 출력용 데이터 수집
  */
 
-import { DOMAIN_IDS } from '../../../shared/src/constants/domains.js';
+import { DOMAIN_IDS } from '../../../../shared/src/constants/domains.js';
 import { calculateSajuWithManseryeok } from '../saju.service.js';
 import { PSYCHOLOGY_GUIDELINES } from './sources/psychologyGuidelines.js';
 import { TAROT_MAJOR_MEANINGS } from './sources/tarotReference.js';
 import { BIRKMAN_DIMENSIONS } from './sources/birkmanReference.js';
 import { DARK_PSYCHOLOGY_GUIDELINES } from './sources/darkPsychologyGuidelines.js';
-import { logger } from '../../../shared/src/utils/logger.js';
+import { logger } from '../../../../shared/src/utils/logger.js';
 
 const LANG_KEYS = ['ko', 'en', 'ja'];
 
