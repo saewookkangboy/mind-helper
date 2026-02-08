@@ -1,4 +1,5 @@
-const REQUIRED_ENV_KEYS = [
+// Firebase는 선택 사항. 없으면 로그인·Firestore 없이 코칭만 이용 가능
+const FIREBASE_ENV_KEYS = [
   'VITE_FIREBASE_API_KEY',
   'VITE_FIREBASE_AUTH_DOMAIN',
   'VITE_FIREBASE_PROJECT_ID',
@@ -7,9 +8,9 @@ const REQUIRED_ENV_KEYS = [
   'VITE_FIREBASE_APP_ID',
 ];
 
-const missingKeys = REQUIRED_ENV_KEYS.filter((key) => !import.meta.env[key]);
-if (missingKeys.length > 0) {
-  console.warn(`[env] Missing required variables: ${missingKeys.join(', ')}`);
+const missingFirebase = FIREBASE_ENV_KEYS.filter((key) => !import.meta.env[key]);
+if (missingFirebase.length === FIREBASE_ENV_KEYS.length && import.meta.env.DEV) {
+  console.info('[env] Firebase 미설정 — 코칭은 이용 가능합니다. 로그인·Firestore는 frontend/.env에 Firebase 값을 넣으면 사용할 수 있습니다.');
 }
 
 export const frontendEnv = {

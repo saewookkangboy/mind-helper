@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "RapidAPI Hub - Career Daily Tarot API": {
+      "command": "npx",
+      "args": [
+        "mcp-remote",
+        "https://mcp.rapidapi.com",
+        "--header",
+        "x-api-host: career-daily-tarot-api.p.rapidapi.com",
+        "--header",
+        "x-api-key: YOUR_RAPIDAPI_KEY"
+      ]
+    }
+  }
+}

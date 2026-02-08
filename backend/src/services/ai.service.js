@@ -431,12 +431,12 @@ export async function generateCoachingResponse({
   }
 }
 
-/** 파이프라인 구조화 응답용 섹션 키 (고객 결과 페이지 6개 섹션과 일치) */
-const PIPELINE_SECTION_IDS = ['saju', 'psychology', 'mbti', 'tarot', 'birkman', 'dark_psychology'];
+/** 파이프라인 구조화 응답용 섹션 키 (6개 도메인 + 앞으로 나아갈 길) */
+const PIPELINE_SECTION_IDS = ['saju', 'psychology', 'mbti', 'tarot', 'birkman', 'dark_psychology', 'path'];
 
 /**
  * 파이프라인 전용: 도메인 소스 기반 AI 응답 생성
- * 고객 관점·사용성: 종합 인사이트(summary) + 6개 섹션별 Mind Helper 조언(sections) 구조로 반환
+ * Orchestrator 관점: 종합 인사이트(현실적 진단·조언) + 섹션별 조언 + 앞으로 나아갈 길(구체적 실행안)
  */
 export async function generatePipelineResponse({
   userQuery,
@@ -452,8 +452,6 @@ export async function generatePipelineResponse({
     .map(([id, text]) => `[${id}]\n${text}`)
     .join('\n\n');
 
-  const sectionKeys = PIPELINE_SECTION_IDS.join(', ');
-
   const systemPrompt = `당신은 사주(만세력), 심리상담, MBTI, 타로, 버크만 진단, 다크 심리학을 통합해 상담하는 전문 코치입니다.
 아래 "측정 소스"는 사용자에게 적용된 도메인별 참조 데이터입니다. 질문에 맞게 이 소스만 활용해 해석하고 조언하세요. 없는 소스는 만들지 마세요.
 
@@ -462,22 +460,25 @@ ${sourceBlocks ? `\n=== 측정 소스 (활용할 참조 데이터) ===\n${source
 답변 규칙:
 1. 반드시 ${lang}로 답변하세요.
 2. 활용한 소스가 있으면 그에 기반해 구체적으로 서술하세요.
-3. 현대적·친근한 말투, 구체적 행동 제안을 포함하세요.
+3. 현대적·친근한 말투, 구체적·현실적인 행동 제안을 포함하세요.
 4. 다크 심리학은 교육·자기보호 관점으로만 서술하세요.
+5. **종합 인사이트(summary)**와 **앞으로 나아갈 길(path)**은 반드시 분석 결과를 반영한 현실적인 진단·조언으로 작성하세요.
+6. **모든 텍스트는 4줄(4문장) 이상**으로 작성하세요. summary, sections 각 항목, path 모두 최소 4문장 이상(또는 줄바꿈 4줄 이상)으로 구체적으로 서술하세요.
 
 **출력 형식 (반드시 준수)**: 아래 JSON만 출력하고, 그 외 설명·마크다운 없이 한 덩어리로 출력하세요.
 {
-  "summary": "위 6개 관점의 핵심 결론을 2~4문장으로 요약한 종합 인사이트. 고객이 한눈에 '무엇을 기억하면 좋은지' 알 수 있게 작성.",
+  "summary": "종합 인사이트. 반드시 4문장 이상(4줄 이상)으로 작성. 사주·심리·MBTI·타로·버크만·다크 심리학 분석을 종합한 현실적 진단과 핵심 조언. '지금 상황에서 무엇을 우선할지', '어떤 마음가짐이 도움이 되는지'를 구체적으로 서술. 분석 결과가 반영된 맞춤 메시지.",
   "sections": {
-    "saju": "사주(만세력) 관점에서의 Mind Helper 조언 (해당 소스 활용 시에만 구체적으로, 없으면 짧게)",
-    "psychology": "심리상담 관점에서의 Mind Helper 조언",
-    "mbti": "MBTI 관점에서의 Mind Helper 조언",
-    "tarot": "타로 관점에서의 Mind Helper 조언",
-    "birkman": "버크만 진단 관점에서의 Mind Helper 조언",
-    "dark_psychology": "다크 심리학 관점에서의 Mind Helper 조언 (교육·자기보호만)"
+    "saju": "사주(만세력) 관점 Mind Helper 조언. 반드시 4문장 이상(4줄 이상). 해당 소스 활용 시 구체적으로 서술.",
+    "psychology": "심리상담 관점 Mind Helper 조언. 반드시 4문장 이상(4줄 이상).",
+    "mbti": "MBTI 관점 Mind Helper 조언. 반드시 4문장 이상(4줄 이상).",
+    "tarot": "타로 관점 Mind Helper 조언. 반드시 4문장 이상(4줄 이상).",
+    "birkman": "버크만 진단 관점 Mind Helper 조언. 반드시 4문장 이상(4줄 이상).",
+    "dark_psychology": "다크 심리학 관점 Mind Helper 조언(교육·자기보호). 반드시 4문장 이상(4줄 이상).",
+    "path": "앞으로 나아갈 길. 반드시 4문장 이상(4줄 이상). 위 6개 관점 분석을 바탕으로 한 구체적·현실적 실행 제안, 우선순위·단계별 행동·일상 실천 조언 포함. 분석 내용이 반영된 맞춤 문단. 비어 있으면 안 됨."
   }
 }
-각 sections 항목은 1~4문장 분량으로, 해당 도메인만의 인사이트를 명확히 하세요. 키는 반드시 ${sectionKeys} 로만 구성하세요.`;
+sections.path는 필수이며, summary·sections 각 항목·path 모두 최소 4줄(4문장) 이상으로 작성하세요.`;
 
   const messages = [{ role: 'user', content: userQuery }];
   const provider = AI_CONFIG.provider;

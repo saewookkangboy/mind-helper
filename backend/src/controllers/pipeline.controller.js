@@ -60,6 +60,7 @@ export async function executePipeline(req, res, next) {
         responseSummary: result.responseSummary ?? '',
         responseSections: result.responseSections ?? {},
         sourcesUsed: result.sourcesUsed,
+        tarotCards: Array.isArray(result.tarotCards) ? result.tarotCards : [],
         timestamp: result.timestamp,
       },
     });

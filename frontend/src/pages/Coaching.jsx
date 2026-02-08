@@ -183,14 +183,19 @@ export default function Coaching() {
         const sourcesUsed = typeof pipelineResult === 'object' && Array.isArray(pipelineResult?.sourcesUsed)
           ? pipelineResult.sourcesUsed
           : [];
+        const tarotCards = typeof pipelineResult === 'object' && Array.isArray(pipelineResult?.tarotCards)
+          ? pipelineResult.tarotCards
+          : [];
 
         appendBotMessage(language === 'ko' ? '분석이 완료되었습니다. 결과 페이지로 이동합니다.' : language === 'ja' ? '分析が完了しました。結果ページへ移動します。' : 'Analysis complete. Redirecting to results.');
 
-        const resultPayload = { response: responseText, responseSummary, responseSections };
         try {
           sessionStorage.setItem('mindHelper_result_response', responseText);
           sessionStorage.setItem('mindHelper_result_summary', responseSummary);
           sessionStorage.setItem('mindHelper_result_sections', JSON.stringify(responseSections));
+          if (tarotCards.length > 0) {
+            sessionStorage.setItem('mindHelper_result_tarot_cards', JSON.stringify(tarotCards));
+          }
         } catch (_) {}
         navigate('/result', {
           state: {
@@ -201,6 +206,7 @@ export default function Coaching() {
             responseSummary,
             responseSections,
             sourcesUsed,
+            tarotCards,
             mbti: finalData.mbti || undefined,
             interests: finalData.interests || undefined,
           },

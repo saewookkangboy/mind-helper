@@ -32,6 +32,8 @@ lerna-debug.log*
 # Editor
 .vscode/
 .idea/
+# MCP config (may contain API keys)
+.cursor/mcp.json
 *.swp
 *.swo
 *~

@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
-export default function LayerModal({ open, onClose, title, children, className = '' }) {
+export default function LayerModal({ open, onClose, title, children, className = '', wide = false }) {
   useEffect(() => {
     if (!open) return;
     const handleEscape = (e) => e.key === 'Escape' && onClose();
@@ -39,7 +39,7 @@ export default function LayerModal({ open, onClose, title, children, className =
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 10 }}
             transition={{ duration: 0.2 }}
-            className="relative w-full max-w-lg max-h-[85vh] flex flex-col rounded-2xl border border-white/20 bg-gray-900/95 backdrop-blur-xl shadow-2xl overflow-hidden"
+            className={`relative w-full ${wide ? 'max-w-3xl' : 'max-w-lg'} max-h-[85vh] flex flex-col rounded-2xl border border-white/20 bg-gray-900/95 backdrop-blur-xl shadow-2xl overflow-hidden`}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">

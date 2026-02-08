@@ -1,5 +1,4 @@
 import { useTranslation } from 'react-i18next';
-import { signInWithPopup, GoogleAuthProvider, signInAnonymously } from 'firebase/auth';
 import { auth } from '../../config/firebase';
 import { useAuthStore } from '../../store/useAuthStore';
 
@@ -7,8 +6,15 @@ export default function AuthButtons() {
   const { t } = useTranslation();
   const { setUser, setGuest } = useAuthStore();
 
+  if (!auth) {
+    return (
+      <p className="text-white/70 text-sm">로그인 기능을 사용하려면 Firebase 설정이 필요합니다. 코칭은 로그인 없이 이용할 수 있습니다.</p>
+    );
+  }
+
   const handleGoogleSignIn = async () => {
     try {
+      const { signInWithPopup, GoogleAuthProvider } = await import('firebase/auth');
       const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(auth, provider);
       setUser(result.user);
@@ -20,11 +26,11 @@ export default function AuthButtons() {
 
   const handleGuestMode = async () => {
     try {
+      const { signInAnonymously } = await import('firebase/auth');
       await signInAnonymously(auth);
       setGuest(true);
     } catch (error) {
       console.error('게스트 모드 실패:', error);
-      // 게스트 모드는 Firebase 없이도 작동하도록
       setGuest(true);
     }
   };

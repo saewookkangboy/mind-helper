@@ -59,7 +59,7 @@
     "analyzingAlmost": "✨ 거의 다 됐어요, 마지막 다듬는 중!"
   },
   "result": {
-    "title": "사주·맞춤 분석 결과",
+    "title": "Mind Helper의 의견은?",
     "sajuPillars": "사주팔자",
     "oheng": "오행",
     "interpretation": "해석",
@@ -68,11 +68,18 @@
     "responseSubtitle": "위 6개 섹션(사주·심리·타로·MBTI·버크만·다크 심리학)을 바탕으로 한 종합 분석입니다.",
     "insightTitle": "종합 인사이트",
     "insightSubtitle": "위 6개 관점의 핵심 결론을 요약했습니다. 각 섹션에서 해당 관점의 Mind Helper 조언을 확인하세요.",
+    "briefSummaryLabel": "간단 요약",
+    "briefSummarySubtitle": "아래 6개 섹션에서 각 관점별 Mind Helper 조언을 확인하세요.",
+    "briefSummaryFallback": "6개 관점을 바탕으로 한 맞춤 분석이 준비되었습니다. 각 섹션에서 조언을 확인하세요.",
+    "finalInsightTitle": "종합 인사이트",
+    "finalInsightSubtitle": "각 섹션의 내용을 바탕으로 한 최종 정리입니다. 오늘의 핵심을 담았어요.",
     "mindHelperAdvice": "Mind Helper의 조언",
     "reflectedInAdvice": "아래 「Mind Helper의 조언」에 이 관점이 반영되어 있습니다.",
     "personaIntro": "안녕하세요. 여러분의 분석 결과를 쉽고 재미있게 풀어드리는 해설가입니다. 아래는 사주, MBTI, 버크만, 심리상담, 다크 심리학, 그리고 앞으로 나아갈 길까지 정리한 내용이에요. 궁금한 부분은 하단 챗봇으로 편하게 물어보세요.",
     "helpBtn": "도움말",
     "detailBtn": "상세 보기",
+    "copyBtn": "텍스트 복사",
+    "copyDone": "복사됨",
     "chatbotTitle": "결과에 대해 더 물어보기",
     "chatbotPlaceholder": "예: 사주 부분만 더 설명해 주세요",
     "chatbotIntro": "결과 내용에 대해 궁금한 것을 입력하면 맞춤 해설을 드려요.",
@@ -111,6 +118,8 @@
     "detailDark": "다크 트라이어드·설득·방어 인지 등에 대한 참고 설명을 제공합니다. 관계와 선택의 폭을 넓히는 데 활용해 주세요.",
     "helpPath": "앞으로 나아갈 길은 사주·심리·MBTI·타로·버크만·다크 심리학 등 여러 관점을 종합해, 귀하의 질문과 상황에 맞는 방향과 실천을 제안한 부분입니다. 우선순위와 단계를 구체적으로 정리했습니다.",
     "detailPath": "우선순위와 실천 단계를 구체적으로 정리한 내용입니다. 아래 AI 종합 분석에서 전체 맥락을 확인하실 수 있습니다.",
+    "tarotCardsTitle": "이번 분석에서 뽑은 카드",
+    "tarotReversed": "역방향",
     "redoCoaching": "AI 코칭 다시 하기"
   },
   "nav": {

@@ -52,16 +52,13 @@ const NETWORK_ERROR_MESSAGE = '서버에 연결할 수 없습니다. 백엔드�
  */
 async function getAuthToken() {
   try {
-    const { getAuth } = await import('firebase/auth');
     const { auth } = await import('../config/firebase.js');
+    if (!auth) return null;
     const currentUser = auth.currentUser;
-
-    if (currentUser) {
-      return await currentUser.getIdToken();
-    }
+    if (currentUser) return await currentUser.getIdToken();
     return null;
   } catch (error) {
-    console.error('인증 토큰 가져오기 실패:', error);
+    console.warn('인증 토큰 가져오기 실패:', error?.message || error);
     return null;
   }
 }

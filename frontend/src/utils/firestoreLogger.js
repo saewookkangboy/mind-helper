@@ -1,9 +1,8 @@
 /**
  * Firestore 데이터 로깅 유틸리티
- * AI 상담 로그, 사용자 피드백 등을 저장
+ * AI 상담 로그, 사용자 피드백 등을 저장 (db 없으면 무시)
  */
 
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../config/firebase';
 
 /**
@@ -23,7 +22,9 @@ export async function logSajuConsultation({
   aiResponse,
   userFeedback = null,
 }) {
+  if (!db) return null;
   try {
+    const { collection, addDoc, serverTimestamp } = await import('firebase/firestore');
     const logData = {
       user_id: userId,
       query_type: queryType,
@@ -77,24 +78,23 @@ export async function updateUserFeedback(logId, feedback, comment = null) {
  * @param {string} category - 카테고리 ('meme' | 'slang')
  */
 export async function logTrendUsage(keyword, category) {
+  if (!db) return;
   try {
-    const { doc, getDoc, updateDoc, increment } = await import('firebase/firestore');
+    const { doc, getDoc, updateDoc, increment, addDoc, collection, serverTimestamp } = await import('firebase/firestore');
     const trendRef = doc(db, 'trends', keyword);
     const trendSnap = await getDoc(trendRef);
 
     if (trendSnap.exists()) {
-      // 기존 키워드 사용 횟수 증가
       await updateDoc(trendRef, {
         usage_count: increment(1),
         last_used: serverTimestamp(),
       });
     } else {
-      // 새 키워드 생성
       await addDoc(collection(db, 'trends'), {
         keyword,
         category,
         usage_count: 1,
-        is_active: false, // 관리자 승인 필요
+        is_active: false,
         created_at: serverTimestamp(),
         last_used: serverTimestamp(),
       });

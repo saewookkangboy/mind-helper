@@ -5,6 +5,7 @@ import { useLocation, Link } from 'react-router-dom';
 const RESULT_RESPONSE_STORAGE_KEY = 'mindHelper_result_response';
 const RESULT_SUMMARY_STORAGE_KEY = 'mindHelper_result_summary';
 const RESULT_SECTIONS_STORAGE_KEY = 'mindHelper_result_sections';
+const RESULT_TAROT_CARDS_STORAGE_KEY = 'mindHelper_result_tarot_cards';
 
 import GlassCard from '../components/ui/GlassCard';
 import LiquidBackground from '../components/ui/LiquidBackground';
@@ -14,6 +15,33 @@ import ResultChatbot from '../components/result/ResultChatbot';
 function stripAsterisks(text) {
   if (typeof text !== 'string') return text;
   return text.replace(/\*+/g, '').trim();
+}
+
+/** 텍스트 복사 버튼: 클립보드 복사 후 잠시 "복사됨" 표시 */
+function CopyTextButton({ text, label, doneLabel, className = '' }) {
+  const [copied, setCopied] = useState(false);
+  const handleCopy = async () => {
+    if (!text || copied) return;
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (_) {}
+  };
+  if (!text) return null;
+  const baseClass = 'inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-white/95 text-sm transition disabled:opacity-60';
+  return (
+    <button
+      type="button"
+      onClick={handleCopy}
+      disabled={copied}
+      className={[baseClass, className].filter(Boolean).join(' ')}
+      title={label}
+    >
+      <span aria-hidden>{copied ? '✓' : '📋'}</span>
+      {copied ? doneLabel : label}
+    </button>
+  );
 }
 
 /**
@@ -49,6 +77,18 @@ function formatOhengDistribution(dist) {
   return parts.length ? parts.join(', ') : null;
 }
 
+/** 상단 '간단 요약'용: 최소 4줄(4문장) 분량으로 표시. 줄바꿈 기준 4줄 또는 문장 기준 4문장 */
+function getBriefSummary(fullSummaryOrResponse) {
+  if (fullSummaryOrResponse == null || typeof fullSummaryOrResponse !== 'string') return '';
+  const trimmed = String(fullSummaryOrResponse).trim();
+  if (!trimmed) return '';
+  const lines = trimmed.split(/\n/).map((s) => s.trim()).filter(Boolean);
+  if (lines.length >= 4) return lines.slice(0, 4).join('\n');
+  const sentences = trimmed.split(/(?<=[.!?。？！])\s+/).filter(Boolean);
+  if (sentences.length >= 4) return sentences.slice(0, 4).join(' ').trim();
+  return trimmed;
+}
+
 function getSimulatedResult() {
   return {
     saju: {
@@ -73,8 +113,10 @@ function getSimulatedResult() {
       tarot: '타로 에너지는 지금 단계적 진행을 뒷받침합니다.',
       birkman: '버크만 관점에서 욕구와 스트레스 반응을 고려한 선택을 권합니다.',
       dark_psychology: '관계에서 자기보호와 경계 인지를 유지하세요.',
+      path: '우선 1~2주 안에 할 수 있는 작은 행동 하나를 정해 실천해 보세요. 사주·MBTI·심리 분석을 종합하면, 기반을 다진 뒤 단계적으로 나아가는 것이 유리합니다. 주간 단위로 점검하며, 부담이 되지 않는 범위에서 소통과 자기보호의 균형을 유지하시길 권합니다.',
     },
     sourcesUsed: ['saju', 'psychology', 'mbti', 'tarot', 'birkman', 'dark_psychology'],
+    tarotCards: [],
   };
 }
 
@@ -85,37 +127,53 @@ export default function AnalysisResult() {
 
   const [modal, setModal] = useState(null);
 
-  const data = state?.saju != null || state?.response != null
-    ? (() => {
-        let response = state.response;
-        let responseSummary = state.responseSummary ?? '';
-        let responseSections = state.responseSections && typeof state.responseSections === 'object' ? state.responseSections : {};
-        try {
-          const storedResp = sessionStorage.getItem(RESULT_RESPONSE_STORAGE_KEY);
-          if (storedResp && typeof storedResp === 'string') response = storedResp;
-          const storedSum = sessionStorage.getItem(RESULT_SUMMARY_STORAGE_KEY);
-          if (storedSum != null) responseSummary = storedSum;
-          const storedSec = sessionStorage.getItem(RESULT_SECTIONS_STORAGE_KEY);
-          if (storedSec) {
-            try {
-              const parsed = JSON.parse(storedSec);
-              if (parsed && typeof parsed === 'object') responseSections = parsed;
-            } catch (_) {}
-          }
-        } catch (_) {}
-        return {
-          saju: state.saju,
-          ohengAnalysis: state.ohengAnalysis,
-          interpretation: state.interpretation,
-          response: response ?? state.response,
-          responseSummary,
-          responseSections,
-          sourcesUsed: state.sourcesUsed || [],
-          mbti: state.mbti,
-          interests: state.interests,
-        };
-      })()
-    : getSimulatedResult();
+  let data;
+  try {
+    data = state?.saju != null || state?.response != null
+      ? (() => {
+          let response = state?.response;
+          let responseSummary = state?.responseSummary ?? '';
+          let responseSections = state?.responseSections && typeof state.responseSections === 'object' ? state.responseSections : {};
+          try {
+            const storedResp = sessionStorage.getItem(RESULT_RESPONSE_STORAGE_KEY);
+            if (storedResp && typeof storedResp === 'string') response = storedResp;
+            const storedSum = sessionStorage.getItem(RESULT_SUMMARY_STORAGE_KEY);
+            if (storedSum != null) responseSummary = String(storedSum);
+            const storedSec = sessionStorage.getItem(RESULT_SECTIONS_STORAGE_KEY);
+            if (storedSec) {
+              try {
+                const parsed = JSON.parse(storedSec);
+                if (parsed && typeof parsed === 'object') responseSections = parsed;
+              } catch (_) {}
+            }
+            let tarotCards = state?.tarotCards;
+            if (!Array.isArray(tarotCards) || tarotCards.length === 0) {
+              try {
+                const stored = sessionStorage.getItem(RESULT_TAROT_CARDS_STORAGE_KEY);
+                if (stored) {
+                  const parsed = JSON.parse(stored);
+                  if (Array.isArray(parsed)) tarotCards = parsed;
+                }
+              } catch (_) {}
+            }
+          } catch (_) {}
+          return {
+            saju: state?.saju ?? null,
+            ohengAnalysis: state?.ohengAnalysis ?? null,
+            interpretation: state?.interpretation ?? '',
+            response: typeof response === 'string' ? response : '',
+            responseSummary: typeof responseSummary === 'string' ? responseSummary : '',
+            responseSections: typeof responseSections === 'object' && responseSections !== null ? responseSections : {},
+            sourcesUsed: Array.isArray(state?.sourcesUsed) ? state.sourcesUsed : [],
+            tarotCards: Array.isArray(tarotCards) ? tarotCards : [],
+            mbti: state?.mbti ?? null,
+            interests: state?.interests ?? null,
+          };
+        })()
+      : getSimulatedResult();
+  } catch (_) {
+    data = getSimulatedResult();
+  }
 
   useEffect(() => {
     return () => {
@@ -147,12 +205,23 @@ export default function AnalysisResult() {
             {t('result.title')}
           </h1>
 
-          <GlassCard className="p-6 border-l-4 border-aurora-purple/50">
-            <h2 className="text-xl font-semibold text-white mb-2">{t('result.insightTitle')}</h2>
-            <p className="text-white/70 text-sm mb-4">{t('result.insightSubtitle')}</p>
-            <div className="text-white/95 leading-relaxed whitespace-pre-wrap break-words">
-              {data.responseSummary ? stripAsterisks(data.responseSummary) : (data.response ? stripAsterisks(data.response) : t('result.personaIntro'))}
+          {/* 상단: 간단 요약 — 한눈에 파악할 수 있는 한 줄 요약 */}
+          <GlassCard className="p-6 bg-white/5 border border-white/10">
+            <div className="flex flex-wrap items-start justify-between gap-3 mb-2">
+              <p className="text-xs font-medium text-aurora-purple/80 uppercase tracking-wider">{t('result.briefSummaryLabel')}</p>
+              <CopyTextButton
+                text={data.responseSummary || data.response ? stripAsterisks(getBriefSummary(data.responseSummary || data.response)) : t('result.briefSummaryFallback')}
+                label={t('result.copyBtn')}
+                doneLabel={t('result.copyDone')}
+                className="bg-white/10 hover:bg-white/15 shrink-0"
+              />
             </div>
+            <p className="text-lg md:text-xl text-white/95 leading-relaxed whitespace-pre-line">
+              {data.responseSummary || data.response
+                ? stripAsterisks(getBriefSummary(data.responseSummary || data.response))
+                : t('result.briefSummaryFallback')}
+            </p>
+            <p className="text-white/60 text-sm mt-3">{t('result.briefSummarySubtitle')}</p>
           </GlassCard>
 
           <section>
@@ -189,6 +258,12 @@ export default function AnalysisResult() {
               )}
               <p className="text-white/70 text-xs mb-3 mt-4">{t('result.reflectedInAdvice')}</p>
               <div className="flex flex-wrap items-center gap-2">
+                <CopyTextButton
+                  text={data.responseSections?.saju ? stripAsterisks(data.responseSections.saju) : ''}
+                  label={t('result.copyBtn')}
+                  doneLabel={t('result.copyDone')}
+                  className="bg-white/10 hover:bg-white/15"
+                />
                 <button
                   type="button"
                   onClick={() => setModal({ type: 'help', section: 'saju' })}
@@ -223,6 +298,7 @@ export default function AnalysisResult() {
               )}
               <p className="text-white/70 text-xs mb-3 mt-4">{t('result.reflectedInAdvice')}</p>
               <div className="flex flex-wrap items-center gap-2">
+                <CopyTextButton text={data.responseSections?.birkman ? stripAsterisks(data.responseSections.birkman) : ''} label={t('result.copyBtn')} doneLabel={t('result.copyDone')} className="bg-white/10 hover:bg-white/15" />
                 <button type="button" onClick={() => setModal({ type: 'help', section: 'birkman' })} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-aurora-purple/20 hover:bg-aurora-purple/30 text-white/95 text-sm transition"><span aria-hidden>💡</span>{t('result.helpBtn')}</button>
                 <button type="button" onClick={() => setModal({ type: 'detail', section: 'birkman' })} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-white/95 text-sm transition"><span aria-hidden>📄</span>{t('result.detailBtn')}</button>
               </div>
@@ -243,6 +319,7 @@ export default function AnalysisResult() {
               )}
               <p className="text-white/70 text-xs mb-3 mt-4">{t('result.reflectedInAdvice')}</p>
               <div className="flex flex-wrap items-center gap-2">
+                <CopyTextButton text={data.responseSections?.psychology ? stripAsterisks(data.responseSections.psychology) : ''} label={t('result.copyBtn')} doneLabel={t('result.copyDone')} className="bg-white/10 hover:bg-white/15" />
                 <button type="button" onClick={() => setModal({ type: 'help', section: 'psychology' })} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-aurora-purple/20 hover:bg-aurora-purple/30 text-white/95 text-sm transition"><span aria-hidden>💡</span>{t('result.helpBtn')}</button>
                 <button type="button" onClick={() => setModal({ type: 'detail', section: 'psychology' })} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-white/95 text-sm transition"><span aria-hidden>📄</span>{t('result.detailBtn')}</button>
               </div>
@@ -263,6 +340,7 @@ export default function AnalysisResult() {
               )}
               <p className="text-white/70 text-xs mb-3 mt-4">{t('result.reflectedInAdvice')}</p>
               <div className="flex flex-wrap items-center gap-2">
+                <CopyTextButton text={data.responseSections?.tarot ? stripAsterisks(data.responseSections.tarot) : ''} label={t('result.copyBtn')} doneLabel={t('result.copyDone')} className="bg-white/10 hover:bg-white/15" />
                 <button type="button" onClick={() => setModal({ type: 'help', section: 'tarot' })} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-aurora-purple/20 hover:bg-aurora-purple/30 text-white/95 text-sm transition"><span aria-hidden>💡</span>{t('result.helpBtn')}</button>
                 <button type="button" onClick={() => setModal({ type: 'detail', section: 'tarot' })} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-white/95 text-sm transition"><span aria-hidden>📄</span>{t('result.detailBtn')}</button>
               </div>
@@ -286,6 +364,7 @@ export default function AnalysisResult() {
               )}
               <p className="text-white/70 text-xs mb-3 mt-4">{t('result.reflectedInAdvice')}</p>
               <div className="flex flex-wrap items-center gap-2">
+                <CopyTextButton text={data.responseSections?.mbti ? stripAsterisks(data.responseSections.mbti) : ''} label={t('result.copyBtn')} doneLabel={t('result.copyDone')} className="bg-white/10 hover:bg-white/15" />
                 <button type="button" onClick={() => setModal({ type: 'help', section: 'mbti' })} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-aurora-purple/20 hover:bg-aurora-purple/30 text-white/95 text-sm transition"><span aria-hidden>💡</span>{t('result.helpBtn')}</button>
                 <button type="button" onClick={() => setModal({ type: 'detail', section: 'mbti' })} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-white/95 text-sm transition"><span aria-hidden>📄</span>{t('result.detailBtn')}</button>
               </div>
@@ -306,6 +385,7 @@ export default function AnalysisResult() {
               )}
               <p className="text-white/70 text-xs mb-3 mt-4">{t('result.reflectedInAdvice')}</p>
               <div className="flex flex-wrap items-center gap-2">
+                <CopyTextButton text={data.responseSections?.dark_psychology ? stripAsterisks(data.responseSections.dark_psychology) : ''} label={t('result.copyBtn')} doneLabel={t('result.copyDone')} className="bg-white/10 hover:bg-white/15" />
                 <button type="button" onClick={() => setModal({ type: 'help', section: 'dark' })} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-aurora-purple/20 hover:bg-aurora-purple/30 text-white/95 text-sm transition"><span aria-hidden>💡</span>{t('result.helpBtn')}</button>
                 <button type="button" onClick={() => setModal({ type: 'detail', section: 'dark' })} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-white/95 text-sm transition"><span aria-hidden>📄</span>{t('result.detailBtn')}</button>
               </div>
@@ -318,12 +398,41 @@ export default function AnalysisResult() {
             </h2>
             <GlassCard className="p-6">
               <p className="text-white/90 text-sm mb-3">{t('result.sectionPathDesc')}</p>
-              <div className="flex flex-wrap items-center gap-2">
+              {data.responseSections?.path && (
+                <div className="mt-4 p-4 rounded-xl bg-aurora-purple/10 border border-aurora-purple/20">
+                  <p className="text-xs font-medium text-aurora-purple/90 mb-1">{t('result.mindHelperAdvice')}</p>
+                  <p className="text-white/92 text-sm leading-relaxed whitespace-pre-wrap">{stripAsterisks(data.responseSections.path)}</p>
+                </div>
+              )}
+              <div className="flex flex-wrap items-center gap-2 mt-4">
+                <CopyTextButton text={data.responseSections?.path ? stripAsterisks(data.responseSections.path) : ''} label={t('result.copyBtn')} doneLabel={t('result.copyDone')} className="bg-white/10 hover:bg-white/15" />
                 <button type="button" onClick={() => setModal({ type: 'help', section: 'path' })} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-aurora-purple/20 hover:bg-aurora-purple/30 text-white/95 text-sm transition"><span aria-hidden>💡</span>{t('result.helpBtn')}</button>
                 <button type="button" onClick={() => setModal({ type: 'detail', section: 'path' })} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-white/95 text-sm transition"><span aria-hidden>📄</span>{t('result.detailBtn')}</button>
               </div>
             </GlassCard>
           </section>
+
+          {/* 하단: 종합 인사이트 — 각 섹션 내용을 기반으로 한 최종 정리 */}
+          <GlassCard className="p-6 md:p-8 border-l-4 border-aurora-purple/50 bg-gradient-to-br from-aurora-purple/5 to-transparent">
+            <div className="flex flex-wrap items-start justify-between gap-3 mb-3">
+              <div className="flex items-center gap-2">
+                <span className="text-2xl" aria-hidden>✨</span>
+                <h2 className="text-xl font-semibold text-white">{t('result.finalInsightTitle')}</h2>
+              </div>
+              <CopyTextButton
+                text={data.responseSummary ? stripAsterisks(data.responseSummary) : (data.response ? stripAsterisks(data.response) : '') || t('result.personaIntro')}
+                label={t('result.copyBtn')}
+                doneLabel={t('result.copyDone')}
+                className="bg-white/10 hover:bg-white/15 shrink-0"
+              />
+            </div>
+            <p className="text-white/70 text-sm mb-4">{t('result.finalInsightSubtitle')}</p>
+            <div className="text-white/95 leading-relaxed whitespace-pre-wrap break-words text-[15px]">
+              {data.responseSummary
+                ? stripAsterisks(data.responseSummary)
+                : (data.response ? stripAsterisks(data.response) : t('result.personaIntro'))}
+            </div>
+          </GlassCard>
 
           {data.sourcesUsed?.length > 0 && (
             <GlassCard className="p-6">
@@ -354,11 +463,38 @@ export default function AnalysisResult() {
           open={!!modal}
           onClose={() => setModal(null)}
           title={`${modal.type === 'help' ? t('result.helpBtn') : t('result.detailBtn')} · ${t(`result.section${modal.section.charAt(0).toUpperCase() + modal.section.slice(1)}`)}`}
+          wide={modal.section === 'tarot' && modal.type === 'detail' && (data.tarotCards ?? []).length > 0}
         >
           <div className="prose prose-invert max-w-none text-base leading-relaxed space-y-4">
             <p className="whitespace-pre-wrap text-white/95">
               {modal.type === 'help' ? t(`result.help${modal.section.charAt(0).toUpperCase() + modal.section.slice(1)}`) : t(`result.detail${modal.section.charAt(0).toUpperCase() + modal.section.slice(1)}`)}
             </p>
+            {modal.section === 'tarot' && modal.type === 'detail' && (data.tarotCards ?? []).length > 0 && (
+              <div className="mt-4 space-y-4">
+                <p className="text-xs font-medium text-aurora-purple/90 uppercase tracking-wider">{t('result.tarotCardsTitle')}</p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  {(data.tarotCards ?? []).map((card, idx) => (
+                    <div key={card.id || idx} className="rounded-xl bg-white/5 border border-white/10 overflow-hidden">
+                      <div className="aspect-[3/4] bg-aurora-purple/10 flex items-center justify-center">
+                        {card.imageUrl ? (
+                          <img src={card.imageUrl} alt={card.name} className="w-full h-full object-contain" />
+                        ) : (
+                          <span className="text-4xl text-white/40" aria-hidden>🃏</span>
+                        )}
+                      </div>
+                      <div className="p-3">
+                        <p className="font-medium text-white/95 text-sm">
+                          {card.name}
+                          {card.reversed && <span className="ml-1 text-aurora-purple/90 text-xs">({t('result.tarotReversed')})</span>}
+                        </p>
+                        {card.position && <p className="text-xs text-white/70 mt-0.5">{card.position}</p>}
+                        {card.meaningShort && <p className="text-white/80 text-xs mt-1 line-clamp-2">{card.meaningShort}</p>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
             {modal.section === 'saju' && modal.type === 'detail' && data.saju?.kariLunarSource && (
               <div className="mt-4 p-4 rounded-xl bg-white/5 border border-white/10 text-white/90 text-sm space-y-1">
                 <p className="font-medium text-white/95">{t('result.sajuSourceTitle')}</p>

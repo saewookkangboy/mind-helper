@@ -58,7 +58,7 @@
     "analyzingAlmost": "✨ Almost there—putting the finishing touches!"
   },
   "result": {
-    "title": "Saju & Analysis Result",
+    "title": "What does Mind Helper say?",
     "sajuPillars": "Four Pillars",
     "oheng": "Oheng (Five Elements)",
     "interpretation": "Interpretation",
@@ -67,11 +67,18 @@
     "responseSubtitle": "A comprehensive analysis based on the six sections above (Saju, Psychology, Tarot, MBTI, Birkman, Dark Psychology).",
     "insightTitle": "Key Insights",
     "insightSubtitle": "Summary of the six perspectives. See each section for Mind Helper's advice per perspective.",
+    "briefSummaryLabel": "Brief Summary",
+    "briefSummarySubtitle": "See Mind Helper's advice per perspective in the six sections below.",
+    "briefSummaryFallback": "Your personalized analysis across six perspectives is ready. Check each section for advice.",
+    "finalInsightTitle": "Key Insights",
+    "finalInsightSubtitle": "Final synthesis based on each section. Here are the main takeaways.",
     "mindHelperAdvice": "Mind Helper's Advice",
     "reflectedInAdvice": "This perspective is reflected in \"Mind Helper's Advice\" below.",
     "personaIntro": "Hi, I'm your friendly guide to this report. Below you'll find Saju, MBTI, Birkman, Psychology, Dark Psychology, and your path forward—all in plain language. Ask the chatbot at the bottom if you'd like to go deeper.",
     "helpBtn": "Help",
     "detailBtn": "See more",
+    "copyBtn": "Copy text",
+    "copyDone": "Copied!",
     "chatbotTitle": "Ask more about your result",
     "chatbotPlaceholder": "e.g. Explain the Saju part in more detail",
     "chatbotIntro": "Ask anything about your result for a tailored explanation.",
@@ -110,6 +117,8 @@
     "detailDark": "We provide reference explanations on the dark triad, persuasion, and defense. Use them to broaden your view of relationships and choices.",
     "helpPath": "Your path forward is a direction and action plan suggested by combining Saju, psychology, MBTI, Tarot, Birkman, and dark psychology. Priorities and steps are summarized here.",
     "detailPath": "Priorities and concrete action steps are summarized here. See the full AI analysis below for full context.",
+    "tarotCardsTitle": "Cards drawn for this reading",
+    "tarotReversed": "Reversed",
     "redoCoaching": "Start AI coaching again"
   },
   "nav": {

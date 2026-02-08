@@ -58,7 +58,7 @@
     "analyzingAlmost": "✨ もう少し！仕上げています。"
   },
   "result": {
-    "title": "四柱・分析結果",
+    "title": "Mind Helperの見解は？",
     "sajuPillars": "四柱八字",
     "oheng": "五行",
     "interpretation": "解釈",
@@ -67,11 +67,18 @@
     "responseSubtitle": "上記6セクション（四柱・心理・タロット・MBTI・バークマン・ダーク心理学）に基づく総合分析です。",
     "insightTitle": "総合インサイト",
     "insightSubtitle": "6つの観点の結論をまとめました。各セクションでMind Helperのアドバイスをご確認ください。",
+    "briefSummaryLabel": "簡単サマリー",
+    "briefSummarySubtitle": "下の6セクションで各観点別のMind Helperのアドバイスをご確認ください。",
+    "briefSummaryFallback": "6つの観点に基づく分析が用意されました。各セクションでアドバイスをご確認ください。",
+    "finalInsightTitle": "総合インサイト",
+    "finalInsightSubtitle": "各セクションの内容に基づく最終まとめです。今日のポイントをまとめました。",
     "mindHelperAdvice": "Mind Helperのアドバイス",
     "reflectedInAdvice": "下の「Mind Helperのアドバイス」にこの視点が反映されています。",
     "personaIntro": "こんにちは。この結果をやさしく解説するナビゲーターです。四柱・MBTI・バークマン・心理・ダーク心理学・これからの道のりまでまとめました。気になる点は下のチャットで質問してください。",
     "helpBtn": "ヘルプ",
     "detailBtn": "詳細を見る",
+    "copyBtn": "テキストをコピー",
+    "copyDone": "コピーしました",
     "chatbotTitle": "結果についてもっと聞く",
     "chatbotPlaceholder": "例：四柱の部分をもう少し説明して",
     "chatbotIntro": "結果について質問すると、解説します。",
@@ -110,6 +117,8 @@
     "detailDark": "ダークトライアド・説得・防衛の参照説明を提供します。関係と選択の幅を広げるためにご活用ください。",
     "helpPath": "これからの道のりは、四柱・心理・MBTI・タロット・バークマン・ダーク心理学などを総合し、ご質問と状況に合った方向と実践を提案した部分です。優先順位とステップをまとめています。",
     "detailPath": "優先順位と実践ステップをまとめています。下のAI総合分析で全体の文脈をご確認ください。",
+    "tarotCardsTitle": "今回の分析で引いたカード",
+    "tarotReversed": "逆位置",
     "redoCoaching": "AIコーチングをもう一度"
   },
   "nav": {
