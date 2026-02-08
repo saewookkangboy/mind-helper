@@ -106,7 +106,7 @@
 
 | 항목 | 상태 | 비고 |
 |------|------|------|
-| index.html 제목·설명·viewport | ✅ 적용 | Fortune Mate, 서비스 설명, viewport |
+| index.html 제목·설명·viewport | ✅ 적용 | Mind Helper, 서비스 설명, viewport |
 | lang 속성 (다국어 대응) | ✅ 적용 | html lang 동적 또는 기본 ko |
 | PWA manifest 연동 | ✅ 이미 적용 | public/manifest.json |
 

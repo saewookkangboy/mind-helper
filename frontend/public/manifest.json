@@ -1,6 +1,6 @@
 {
-  "name": "Fortune Mate",
-  "short_name": "FortuneMate",
+  "name": "Mind Helper",
+  "short_name": "MindHelper",
   "description": "AI 퍼스널 사주 코칭 서비스",
   "start_url": "/",
   "display": "standalone",

@@ -14,7 +14,7 @@ dev-agent-kit의 **Spec-kit**과 **To-do** 기능에만 집중하는 서브에�
 - **To-do**: 마일스톤·우선순위를 반영한 작업 목록 생성·갱신
 - **의존성**: 작업 간 선후 관계가 있으면 명시
 
-## fortune-mate 컨텍스트
+## mind-helper 컨텍스트
 
 - 루트: `AI_Saju_Coaching_PRD.md`, `docs/` (ARCHITECTURE_ANALYSIS, QUICK_START 등)
 - 워크스페이스: frontend, admin, backend, shared

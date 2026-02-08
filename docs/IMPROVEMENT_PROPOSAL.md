@@ -1,8 +1,8 @@
-# Fortune Mate 개선 제안 상세 문서
+# Mind Helper 개선 제안 상세 문서
 
 ## 📋 개요
 
-이 문서는 Fortune Mate 서비스의 구조적 개선을 위한 구체적인 구현 가이드를 제공합니다.
+이 문서는 Mind Helper 서비스의 구조적 개선을 위한 구체적인 구현 가이드를 제공합니다.
 
 ---
 
@@ -18,7 +18,7 @@
 ```json
 // 루트 package.json
 {
-  "name": "fortune-mate",
+  "name": "mind-helper",
   "private": true,
   "workspaces": [
     "apps/*",
@@ -36,7 +36,7 @@
 
 #### Step 1: 디렉토리 구조 재구성
 ```
-fortune-mate/
+mind-helper/
 ├── packages/
 │   └── shared/
 │       ├── package.json
@@ -517,7 +517,7 @@ const swaggerOptions = {
   definition: {
     openapi: '3.0.0',
     info: {
-      title: 'Fortune Mate API',
+      title: 'Mind Helper API',
       version: '1.0.0',
     },
   },

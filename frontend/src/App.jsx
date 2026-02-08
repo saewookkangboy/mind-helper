@@ -9,6 +9,7 @@ import Auth from './pages/Auth';
 import Onboarding from './pages/Onboarding';
 import Dashboard from './pages/Dashboard';
 import Coaching from './pages/Coaching';
+import AnalysisResult from './pages/AnalysisResult';
 
 function App() {
   const { i18n } = useTranslation();
@@ -23,11 +24,13 @@ function App() {
       <div className="min-h-screen">
         <Navbar />
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<Coaching />} />
+          <Route path="/welcome" element={<Home />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/onboarding" element={<Onboarding />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/coaching" element={<Coaching />} />
+          <Route path="/result" element={<AnalysisResult />} />
           <Route path="/profile" element={<div className="min-h-screen pt-32 px-4"><h1 className="text-4xl">프로필 (준비 중)</h1></div>} />
         </Routes>
         <MobileNav />

@@ -1,4 +1,4 @@
-# Fortune Mate - AI 퍼스널 사주 코칭 서비스
+# Mind Helper - AI 퍼스널 사주 코칭 서비스
 
 ## 프로젝트 개요
 
@@ -32,7 +32,7 @@
 ## 프로젝트 구조
 
 ```
-fortune-mate/
+mind-helper/
 ├── frontend/          # 메인 프론트엔드 앱
 │   ├── src/
 │   │   ├── components/

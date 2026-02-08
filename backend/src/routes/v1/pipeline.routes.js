@@ -5,7 +5,7 @@
 
 import express from 'express';
 import { coachingRateLimit } from '../../middleware/rateLimit.middleware.js';
-import { authenticate } from '../../middleware/auth.middleware.js';
+import { optionalAuthenticate } from '../../middleware/auth.middleware.js';
 import { validateBody, pipelineSchema } from '../../middleware/validation.middleware.js';
 import { executePipeline } from '../../controllers/pipeline.controller.js';
 
@@ -13,7 +13,7 @@ const router = express.Router();
 
 router.post(
   '/',
-  authenticate,
+  optionalAuthenticate,
   coachingRateLimit,
   validateBody(pipelineSchema),
   executePipeline

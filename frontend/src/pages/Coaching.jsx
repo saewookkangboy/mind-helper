@@ -1,33 +1,61 @@
 import { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import GlassCard from '../components/ui/GlassCard';
 import LiquidBackground from '../components/ui/LiquidBackground';
 import ChatMessage from '../components/coaching/ChatMessage';
 import ChatInput from '../components/coaching/ChatInput';
-import { generateCoachingResponse } from '../utils/aiService';
-import { logSajuConsultation, updateUserFeedback } from '../utils/firestoreLogger';
-import { useAuthStore } from '../store/useAuthStore';
+import { generatePipelineResponse } from '../utils/aiService';
+import { apiCalculateSaju } from '../utils/apiClient';
+import { calculateSaju, analyzeOheng, interpretSaju } from '../utils/sajuCalculator';
+
+const MBTI_TYPES = ['INTJ', 'INTP', 'ENTJ', 'ENTP', 'INFJ', 'INFP', 'ENFJ', 'ENFP', 'ISTJ', 'ISFJ', 'ESTJ', 'ESFJ', 'ISTP', 'ISFP', 'ESTP', 'ESFP'];
+
+function parseStep1(text) {
+  const trimmed = text.trim();
+  const dateMatch = trimmed.match(/(\d{4})[-/](\d{1,2})[-/](\d{1,2})/);
+  const timeMatch = trimmed.match(/(\d{1,2}):(\d{2})/);
+  if (!dateMatch || !timeMatch) return null;
+  const [, y, m, d] = dateMatch;
+  const [, h, min] = timeMatch;
+  const birthDate = `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
+  const birthTime = `${h.padStart(2, '0')}:${min}`;
+  return { birthDate, birthTime };
+}
+
+function parseStep2(text) {
+  const trimmed = text.trim();
+  const upper = trimmed.toUpperCase();
+  const mbti = MBTI_TYPES.find((t) => upper.includes(t)) || (upper.match(/\b([A-Z]{4})\b/)?.[1]);
+  const rest = trimmed.replace(/\b(INTJ|INTP|ENTJ|ENTP|INFJ|INFP|ENFJ|ENFP|ISTJ|ISFJ|ESTJ|ESFJ|ISTP|ISFP|ESTP|ESFP)\b/gi, '').replace(/[,،、]\s*/, '').trim();
+  const interests = rest || null;
+  return { mbti: mbti || null, interests: interests || null };
+}
 
 export default function Coaching() {
   const { t, i18n } = useTranslation();
-  const { user, isGuest } = useAuthStore();
-  const [messages, setMessages] = useState([
-    {
-      id: 1,
-      text: '안녕하세요! 저는 당신의 영적 라이프 코치입니다. 무엇이 궁금하신가요?',
-      isUser: false,
-      timestamp: new Date(),
-      logId: null,
-    },
-  ]);
-  const [selectedCategory, setSelectedCategory] = useState('today');
+  const navigate = useNavigate();
+  const [step, setStep] = useState(1);
+  const [collectedData, setCollectedData] = useState({});
+  const [messages, setMessages] = useState(() => {
+    const intro = t('coaching.intro');
+    const step1 = t('coaching.step1Question');
+    return [
+      {
+        id: 1,
+        text: `${intro}\n\n${step1}`,
+        isUser: false,
+        timestamp: new Date(),
+        logId: null,
+      },
+    ];
+  });
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef(null);
-  
-  // 사용자 정보 가져오기
-  const userSaju = JSON.parse(localStorage.getItem('userSaju') || 'null');
-  const userInfo = userSaju?.userInfo || {};
+
+  const lang = (i18n.language || 'ko').split(/[-_]/)[0];
+  const language = ['ko', 'en', 'ja'].includes(lang) ? lang : 'ko';
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -37,13 +65,25 @@ export default function Coaching() {
     scrollToBottom();
   }, [messages]);
 
+  const appendBotMessage = (text) => {
+    setMessages((prev) => [
+      ...prev,
+      {
+        id: Date.now(),
+        text,
+        isUser: false,
+        timestamp: new Date(),
+        logId: null,
+      },
+    ]);
+  };
+
   const handleSendMessage = async (text) => {
     if (!text.trim() || isLoading) return;
 
-    // 사용자 메시지 추가
     const userMessage = {
       id: Date.now(),
-      text,
+      text: text.trim(),
       isUser: true,
       timestamp: new Date(),
     };
@@ -51,125 +91,100 @@ export default function Coaching() {
     setIsLoading(true);
 
     try {
-      // AI 응답 생성
-      // 언어 코드 정규화 (ko-KR -> ko, en-US -> en) 후 API 전달
-      const lang = (i18n.language || 'ko').split(/[-_]/)[0];
-      const language = ['ko', 'en', 'ja'].includes(lang) ? lang : 'ko';
+      if (step === 1) {
+        const parsed = parseStep1(text);
+        if (!parsed) {
+          appendBotMessage(t('coaching.step1Question'));
+          setIsLoading(false);
+          return;
+        }
+        setCollectedData((prev) => ({ ...prev, ...parsed }));
+        setStep(2);
+        appendBotMessage(t('coaching.step2Question'));
+      } else if (step === 2) {
+        const parsed = parseStep2(text);
+        setCollectedData((prev) => ({ ...prev, ...parsed }));
+        setStep(3);
+        appendBotMessage(t('coaching.step3Question'));
+      } else if (step === 3) {
+        const userQuery = text.trim();
+        const finalData = { ...collectedData, userQuery };
+        setCollectedData(finalData);
 
-      const aiResponseText = await generateCoachingResponse({
-        userQuery: text,
-        queryType: selectedCategory,
-        userSaju: userSaju?.saju ? {
-          ...userSaju.saju,
-          ohengAnalysis: userSaju.ohengAnalysis,
-          interpretation: userSaju.interpretation,
-        } : null,
-        language,
-        mbti: userInfo.mbti,
-        interests: userInfo.interests,
-      });
+        appendBotMessage(t('coaching.thinking'));
 
-      const aiResponse = {
-        id: Date.now() + 1,
-        text: aiResponseText,
-        isUser: false,
-        timestamp: new Date(),
-        logId: null,
-      };
-      setMessages((prev) => [...prev, aiResponse]);
+        const { birthDate, birthTime, mbti, interests } = finalData;
+        let saju = null;
+        let ohengAnalysis = null;
+        let interpretation = null;
 
-      // Firestore에 로그 저장
-      try {
-        const userId = user?.uid || `guest_${Date.now()}`;
-        const inputType = 'text';
-        const logId = await logSajuConsultation({
-          userId,
-          queryType: selectedCategory,
-          inputType,
-          userQuery: text,
-          aiResponse: aiResponseText,
+        try {
+          const userTimezone = Intl.DateTimeFormat?.()?.resolvedOptions?.()?.timeZone || 'Asia/Seoul';
+          const res = await apiCalculateSaju(birthDate, birthTime, userTimezone);
+          if (res?.success && res?.data?.saju) {
+            saju = res.data.saju;
+          }
+        } catch (_) {}
+        if (!saju && birthDate && birthTime) {
+          saju = calculateSaju(birthDate, birthTime);
+        }
+        if (saju) {
+          ohengAnalysis = analyzeOheng(saju);
+          interpretation = interpretSaju(saju, ohengAnalysis);
+        }
+
+        const userContext = {
+          birthDate,
+          birthTime,
+          mbti: mbti || undefined,
+          interests: interests || undefined,
+          userSaju: interpretation ? { interpretation, ohengAnalysis, saju } : undefined,
+        };
+
+        const pipelineResult = await generatePipelineResponse({
+          userQuery,
+          language,
+          userContext,
         });
-        
-        // 메시지에 logId 추가
-        setMessages((prev) =>
-          prev.map((msg) =>
-            msg.id === aiResponse.id ? { ...msg, logId } : msg
-          )
-        );
-      } catch (error) {
-        console.error('로그 저장 실패:', error);
+
+        const responseText = typeof pipelineResult === 'object' && pipelineResult?.response != null
+          ? pipelineResult.response
+          : String(pipelineResult);
+        const sourcesUsed = typeof pipelineResult === 'object' && Array.isArray(pipelineResult?.sourcesUsed)
+          ? pipelineResult.sourcesUsed
+          : [];
+
+        appendBotMessage(language === 'ko' ? '분석이 완료되었습니다. 결과 페이지로 이동합니다.' : language === 'ja' ? '分析が完了しました。結果ページへ移動します。' : 'Analysis complete. Redirecting to results.');
+
+        navigate('/result', {
+          state: {
+            saju,
+            ohengAnalysis,
+            interpretation,
+            response: responseText,
+            sourcesUsed,
+          },
+        });
       }
     } catch (error) {
-      console.error('AI 응답 생성 실패:', error);
-      const userText =
-        error.userMessage ||
-        error.message ||
-        '죄송합니다. 응답을 생성하는 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.';
-      const errorMessage = {
-        id: Date.now() + 1,
-        text: userText,
-        isUser: false,
-        timestamp: new Date(),
-        logId: null,
-      };
-      setMessages((prev) => [...prev, errorMessage]);
+      console.error('Coaching/Pipeline error:', error);
+      const errMsg = error?.userMessage || error?.message || t('common.error');
+      appendBotMessage(errMsg);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleFeedback = async (messageId, feedback) => {
-    const message = messages.find((m) => m.id === messageId);
-    if (message?.logId) {
-      try {
-        await updateUserFeedback(message.logId, feedback);
-        // UI 업데이트
-        setMessages((prev) =>
-          prev.map((m) =>
-            m.id === messageId ? { ...m, feedback } : m
-          )
-        );
-      } catch (error) {
-        console.error('피드백 저장 실패:', error);
-      }
-    }
-  };
-
-  const categories = [
-    { id: 'today', label: t('coaching.today'), icon: '📅' },
-    { id: 'career', label: t('coaching.career'), icon: '💼' },
-    { id: 'love', label: t('coaching.love'), icon: '💕' },
-  ];
-
   return (
     <div className="min-h-screen relative">
       <LiquidBackground />
-      
+
       <div className="container mx-auto px-4 pt-32 pb-24">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-4xl md:text-5xl font-bold text-gradient mb-8">
             {t('coaching.title')}
           </h1>
 
-          {/* 카테고리 선택 */}
-          <div className="flex gap-3 mb-6 overflow-x-auto pb-2">
-            {categories.map((category) => (
-              <button
-                key={category.id}
-                onClick={() => setSelectedCategory(category.id)}
-                className={`glass-card px-6 py-3 whitespace-nowrap flex items-center gap-2 transition-all ${
-                  selectedCategory === category.id
-                    ? 'bg-aurora-purple/30 border-2 border-aurora-purple'
-                    : ''
-                }`}
-              >
-                <span>{category.icon}</span>
-                <span>{category.label}</span>
-              </button>
-            ))}
-          </div>
-
-          {/* 채팅 영역 */}
           <GlassCard className="p-6 mb-4 min-h-[400px] max-h-[600px] overflow-y-auto">
             <div className="space-y-4">
               {messages.map((message) => (
@@ -177,7 +192,6 @@ export default function Coaching() {
                   key={message.id}
                   message={message.text}
                   isUser={message.isUser}
-                  onFeedback={(feedback) => handleFeedback(message.id, feedback)}
                 />
               ))}
               {isLoading && (
@@ -187,14 +201,13 @@ export default function Coaching() {
                   className="flex items-center gap-2 text-white/70"
                 >
                   <span className="animate-pulse">🔮</span>
-                  <span>생각 중...</span>
+                  <span>{t('coaching.thinking')}</span>
                 </motion.div>
               )}
               <div ref={messagesEndRef} />
             </div>
           </GlassCard>
 
-          {/* 입력 영역 */}
           <ChatInput
             onSendMessage={handleSendMessage}
             disabled={isLoading}

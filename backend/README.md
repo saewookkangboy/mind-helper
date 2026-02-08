@@ -1,4 +1,4 @@
-# Fortune Mate Backend
+# Mind Helper Backend
 
 백엔드 API 서버 및 크롤러
 

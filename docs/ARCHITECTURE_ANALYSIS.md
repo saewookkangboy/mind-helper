@@ -1,4 +1,4 @@
-# Fortune Mate 서비스 구조 분석 및 개선 제안
+# Mind Helper 서비스 구조 분석 및 개선 제안
 
 ## 📋 목차
 1. [현재 구조 분석](#현재-구조-분석)
@@ -13,7 +13,7 @@
 ### 1. 프로젝트 구조
 
 ```
-fortune-mate/
+mind-helper/
 ├── frontend/          # React 19 + Vite (메인 앱)
 ├── admin/            # React 19 + Vite (관리자 대시보드)
 ├── backend/          # Node.js + Express (API 서버)
@@ -125,7 +125,7 @@ fortune-mate/
 
 #### 제안 구조
 ```
-fortune-mate/
+mind-helper/
 ├── packages/
 │   ├── shared/              # 공유 코드
 │   │   ├── types/           # TypeScript 타입 정의

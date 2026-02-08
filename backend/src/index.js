@@ -1,5 +1,5 @@
 /**
- * Fortune Mate Backend API Server
+ * Mind Helper Backend API Server
  */
 
 import express from 'express';
@@ -86,7 +86,7 @@ app.use(errorHandler);
 
 // 서버 시작
 app.listen(PORT, () => {
-  logger.info(`🚀 Fortune Mate Backend 서버가 포트 ${PORT}에서 실행 중입니다.`);
+  logger.info(`🚀 Mind Helper Backend 서버가 포트 ${PORT}에서 실행 중입니다.`);
   logger.info(`📚 API 문서: http://localhost:${PORT}/api-docs`);
   logger.info(`🏥 Health Check: http://localhost:${PORT}${API_ENDPOINTS.HEALTH}`);
 

@@ -53,12 +53,6 @@ export default function Home() {
           
           <div className="mt-12 flex gap-4 justify-center">
             <Link
-              to="/auth"
-              className="glass-button text-lg px-8 py-4 inline-block"
-            >
-              {t('auth.signIn')}
-            </Link>
-            <Link
               to="/onboarding"
               className="glass-button text-lg px-8 py-4 inline-block bg-glass-dark hover:bg-glass-medium"
             >

@@ -6,6 +6,35 @@ import { auth } from '../config/firebase-admin.js';
 import { AppError, ErrorCodes } from '../../../shared/src/utils/errors.js';
 
 /**
+ * 선택적 인증: 토큰이 있으면 검증해 req.user 설정, 없으면 req.user = null
+ * 로그인 숨김 시 비로그인 사용자도 코칭 등 이용 가능
+ */
+export async function optionalAuthenticate(req, res, next) {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      req.user = null;
+      return next();
+    }
+    const token = authHeader.split('Bearer ')[1];
+    if (!token) {
+      req.user = null;
+      return next();
+    }
+    const decodedToken = await auth.verifyIdToken(token);
+    req.user = {
+      uid: decodedToken.uid,
+      email: decodedToken.email,
+      emailVerified: decodedToken.email_verified,
+    };
+    next();
+  } catch (error) {
+    req.user = null;
+    next();
+  }
+}
+
+/**
  * Firebase Auth 토큰 검증
  */
 export async function authenticate(req, res, next) {

@@ -1,6 +1,6 @@
-# @fortune-mate/shared
+# @mind-helper/shared
 
-Fortune Mate 프로젝트의 공유 코드 패키지입니다.
+Mind Helper 프로젝트의 공유 코드 패키지입니다.
 
 ## 구조
 
@@ -20,16 +20,16 @@ shared/
 
 ```javascript
 // 타입 사용
-import { QueryTypes, FeedbackTypes } from '@fortune-mate/shared/types';
+import { QueryTypes, FeedbackTypes } from '@mind-helper/shared/types';
 
 // 유틸리티 사용
-import { validateEnv, retry } from '@fortune-mate/shared/utils';
+import { validateEnv, retry } from '@mind-helper/shared/utils';
 
 // 에러 클래스 사용
-import { AppError, ErrorCodes } from '@fortune-mate/shared/utils/errors';
+import { AppError, ErrorCodes } from '@mind-helper/shared/utils/errors';
 
 // 상수 사용
-import { API_ENDPOINTS, HTTP_STATUS } from '@fortune-mate/shared/constants';
+import { API_ENDPOINTS, HTTP_STATUS } from '@mind-helper/shared/constants';
 ```
 
 ## 개발

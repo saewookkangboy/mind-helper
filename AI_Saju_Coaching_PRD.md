@@ -1,4 +1,4 @@
-# **\[PRD & Tech Spec\] AI 퍼스널 사주 코칭 서비스: "Fortune Mate" (v1.7)**
+# **\[PRD & Tech Spec\] AI 퍼스널 사주 코칭 서비스: "Mind Helper" (v1.7)**
 
 ## **1\. 프로젝트 개요 (Executive Summary)**
 

@@ -1,4 +1,4 @@
-# Fortune Mate Admin Dashboard
+# Mind Helper Admin Dashboard
 
 관리자 대시보드 - Control Tower
 

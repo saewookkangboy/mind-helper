@@ -1,5 +1,5 @@
 {
-  "name": "@fortune-mate/shared",
+  "name": "@mind-helper/shared",
   "version": "1.0.0",
   "type": "module",
   "main": "./src/index.js",

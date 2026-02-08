@@ -1,6 +1,6 @@
 {
   "common": {
-    "welcome": "Welcome to Fortune Mate",
+    "welcome": "Welcome to Mind Helper",
     "loading": "Loading...",
     "error": "An error occurred",
     "retry": "Retry"
@@ -36,7 +36,22 @@
     "love": "Love",
     "today": "Today's Fortune",
     "askQuestion": "Ask Question",
-    "voiceChat": "Voice Chat"
+    "voiceChat": "Voice Chat",
+    "send": "Send",
+    "intro": "Hello. I'll help you with personalized analysis based on Saju, Psychology, Tarot, MBTI, Birkman, and Dark Psychology. I'll ask you for information in 3 steps.",
+    "step1Question": "Step 1: Please tell me your date and time of birth. (e.g. 1990-05-15 15:30)",
+    "step2Question": "Step 2: Please tell me your MBTI type and interests. (e.g. INFP, music, reading)",
+    "step3Question": "Step 3: What would you like to know most right now? Please write one sentence.",
+    "thinking": "Analyzing...",
+    "resultTitle": "Saju & Analysis Result"
+  },
+  "result": {
+    "title": "Saju & Analysis Result",
+    "sajuPillars": "Four Pillars",
+    "oheng": "Oheng (Five Elements)",
+    "interpretation": "Interpretation",
+    "sourcesUsed": "Sources Used",
+    "response": "AI Analysis"
   },
   "nav": {
     "home": "Home",

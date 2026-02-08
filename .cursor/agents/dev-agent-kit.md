@@ -17,7 +17,7 @@ description: Spec-kit, To-do, Agent Roles, SEO/GEO/AIO 최적화, API 키 관리
 
 ## 수행 시 규칙
 
-1. **프로젝트 구조 존중**: fortune-mate는 모노레포(frontend, admin, backend, shared, docs)입니다. 변경 제안 시 해당 워크스페이스를 명시하세요.
+1. **프로젝트 구조 존중**: mind-helper는 모노레포(frontend, admin, backend, shared, docs)입니다. 변경 제안 시 해당 워크스페이스를 명시하세요.
 2. **CLI 사용 가능 시**: 프로젝트 루트에 `dev-agent` CLI가 있으면 다음을 우선 사용합니다.
    - `dev-agent todo add/list/complete`
    - `dev-agent spec create/list/validate`

@@ -8,8 +8,8 @@ export default function MobileNav() {
   const navItems = [
     { path: '/', label: t('nav.home'), icon: '🏠' },
     { path: '/coaching', label: t('nav.coaching'), icon: '💬' },
-    { path: '/profile', label: t('nav.profile'), icon: '👤' },
   ];
+  /* 프로필 현재 숨김: { path: '/profile', label: t('nav.profile'), icon: '👤' } */
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden">

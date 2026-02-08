@@ -10,8 +10,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
       manifest: {
-        name: 'Fortune Mate',
-        short_name: 'FortuneMate',
+        name: 'Mind Helper',
+        short_name: 'MindHelper',
         description: 'AI 퍼스널 사주 코칭 서비스',
         theme_color: '#8B5CF6',
         icons: [

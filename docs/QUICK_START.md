@@ -1,4 +1,4 @@
-# Fortune Mate 빠른 시작 가이드
+# Mind Helper 빠른 시작 가이드
 
 ## 📋 개선 사항 적용 후 시작하기
 

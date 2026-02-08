@@ -3,6 +3,7 @@
  * 백엔드에서 AI API를 호출하는 서비스
  */
 
+import { AppError, ErrorCodes } from '../../../shared/src/utils/errors.js';
 import { getLanguageEmbedding, LANGUAGE_LABELS, normalizeLanguageCode } from './languageEmbedding.js';
 
 const AI_CONFIG = {
@@ -72,7 +73,11 @@ async function callOpenAI(messages, systemPrompt) {
   const { openai } = AI_CONFIG;
   
   if (!openai.apiKey) {
-    throw new Error('OpenAI API 키가 설정되지 않았습니다');
+    throw new AppError(
+      'AI service is temporarily unavailable',
+      503,
+      ErrorCodes.AI_SERVICE_ERROR
+    );
   }
 
   const response = await fetch(`${openai.baseURL}/chat/completions`, {
@@ -108,7 +113,11 @@ async function callGemini(prompt, systemInstruction) {
   const { gemini } = AI_CONFIG;
   
   if (!gemini.apiKey) {
-    throw new Error('Gemini API 키가 설정되지 않았습니다');
+    throw new AppError(
+      'AI service is temporarily unavailable',
+      503,
+      ErrorCodes.AI_SERVICE_ERROR
+    );
   }
 
   const response = await fetch(
