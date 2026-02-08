@@ -43,7 +43,14 @@
     "step2Question": "Step 2: Please tell me your MBTI type and interests. (e.g. INFP, music, reading)",
     "step3Question": "Step 3: What would you like to know most right now? Please write one sentence.",
     "thinking": "Analyzing...",
-    "resultTitle": "Saju & Analysis Result"
+    "resultTitle": "Saju & Analysis Result",
+    "analyzingSaju": "🔮 Checking your Four Pillars (year, month, day, hour) now.",
+    "analyzingPsych": "💬 Looking at patterns from a psychology perspective.",
+    "analyzingTarot": "🃏 Reading the Tarot symbols for you.",
+    "analyzingMbti": "🧠 Weaving in MBTI insights for your type.",
+    "analyzingBirkman": "📊 Adding Birkman style into the mix.",
+    "analyzingDark": "🎭 Sprinkling in a bit of dark psychology.",
+    "analyzingAlmost": "✨ Almost there—putting the finishing touches!"
   },
   "result": {
     "title": "Saju & Analysis Result",

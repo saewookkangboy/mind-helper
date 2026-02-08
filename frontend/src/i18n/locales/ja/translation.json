@@ -43,7 +43,14 @@
     "step2Question": "ステップ2: MBTIタイプと興味を教えてください。（例: INFP、音楽・読書）",
     "step3Question": "ステップ3: 今いちばん知りたいことや悩みを一文で書いてください。",
     "thinking": "分析中...",
-    "resultTitle": "四柱・分析結果"
+    "resultTitle": "四柱・分析結果",
+    "analyzingSaju": "🔮 四柱（年月日時）の五行をみています。",
+    "analyzingPsych": "💬 心理カウンセリングの視点でパターン分析中。",
+    "analyzingTarot": "🃏 タロットのシンボルを参照しています。",
+    "analyzingMbti": "🧠 MBTIタイプに合わせたインサイトをまとめています。",
+    "analyzingBirkman": "📊 バークマンのスタイルを反映しています。",
+    "analyzingDark": "🎭 ダーク心理学の視点も少し加えています。",
+    "analyzingAlmost": "✨ もう少し！仕上げています。"
   },
   "result": {
     "title": "四柱・分析結果",

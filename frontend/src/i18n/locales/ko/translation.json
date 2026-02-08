@@ -44,7 +44,14 @@
     "step2Question": "2단계: MBTI 유형과 관심사를 알려주세요. (예: INFP, 음악·독서)",
     "step3Question": "3단계: 지금 가장 궁금한 것 또는 고민을 한 문장으로 적어주세요.",
     "thinking": "분석 중...",
-    "resultTitle": "사주·맞춤 분석 결과"
+    "resultTitle": "사주·맞춤 분석 결과",
+    "analyzingSaju": "🔮 사주(만세력)로 년·월·일·시 오행을 살펴보고 있어요.",
+    "analyzingPsych": "💬 심리상담 관점에서 패턴을 분석 중이에요.",
+    "analyzingTarot": "🃏 타로 카드의 상징을 참고해 읽고 있어요.",
+    "analyzingMbti": "🧠 MBTI 유형과 맞춤 인사이트를 짜고 있어요.",
+    "analyzingBirkman": "📊 버크만 진단으로 스타일을 반영하고 있어요.",
+    "analyzingDark": "🎭 다크 심리학 관점도 살짝 섞어볼게요.",
+    "analyzingAlmost": "✨ 거의 다 됐어요, 마지막 다듬는 중!"
   },
   "result": {
     "title": "사주·맞춤 분석 결과",

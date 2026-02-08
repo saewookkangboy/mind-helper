@@ -52,9 +52,20 @@ export default function Coaching() {
     ];
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [analyzingStepIndex, setAnalyzingStepIndex] = useState(0);
   const messagesEndRef = useRef(null);
   const nextIdRef = useRef(2);
   const nextId = () => nextIdRef.current++;
+
+  const ANALYZING_KEYS = [
+    'coaching.analyzingSaju',
+    'coaching.analyzingPsych',
+    'coaching.analyzingTarot',
+    'coaching.analyzingMbti',
+    'coaching.analyzingBirkman',
+    'coaching.analyzingDark',
+    'coaching.analyzingAlmost',
+  ];
 
   const lang = (i18n.language || 'ko').split(/[-_]/)[0];
   const language = ['ko', 'en', 'ja'].includes(lang) ? lang : 'ko';
@@ -66,6 +77,17 @@ export default function Coaching() {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  useEffect(() => {
+    if (!isLoading) {
+      setAnalyzingStepIndex(0);
+      return;
+    }
+    const interval = setInterval(() => {
+      setAnalyzingStepIndex((prev) => (prev + 1) % ANALYZING_KEYS.length);
+    }, 2200);
+    return () => clearInterval(interval);
+  }, [isLoading]);
 
   const appendBotMessage = (text) => {
     setMessages((prev) => [
@@ -198,12 +220,21 @@ export default function Coaching() {
               ))}
               {isLoading && (
                 <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="flex items-center gap-2 text-white/70"
+                  key={analyzingStepIndex}
+                  initial={{ opacity: 0, y: 4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="flex items-start gap-3 p-4 rounded-xl bg-glass-dark/80 border border-white/10"
                 >
-                  <span className="animate-pulse">🔮</span>
-                  <span>{t('coaching.thinking')}</span>
+                  <span className="text-2xl animate-pulse flex-shrink-0">🔮</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-aurora-purple/90 font-medium mb-0.5">
+                      {t('coaching.thinking')}
+                    </p>
+                    <p className="text-white/90 text-[15px] leading-relaxed">
+                      {t(ANALYZING_KEYS[analyzingStepIndex])}
+                    </p>
+                  </div>
                 </motion.div>
               )}
               <div ref={messagesEndRef} />
