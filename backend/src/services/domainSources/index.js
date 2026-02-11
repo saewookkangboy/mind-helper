@@ -63,7 +63,7 @@ export async function loadDomainContexts(domainIds, userContext = {}) {
 }
 
 async function loadSajuContext(userContext) {
-  const { userSaju, birthDate, birthTime, timezone } = userContext;
+  const { userSaju, birthDate, birthTime, timezone, calendarType, isLeapMonth } = userContext;
   if (userSaju?.interpretation) {
     const oheng = userSaju.ohengAnalysis;
     return [
@@ -74,14 +74,25 @@ async function loadSajuContext(userContext) {
     ].join('\n');
   }
   if (birthDate && birthTime) {
-    const result = await calculateSajuWithManseryeok(birthDate, birthTime, timezone || 'Asia/Seoul');
+    const result = await calculateSajuWithManseryeok(
+      birthDate,
+      birthTime,
+      timezone || 'Asia/Seoul',
+      calendarType || 'solar',
+      isLeapMonth || false
+    );
     if (result.error) return null;
-    const oheng = result.ohengAnalysis;
+    const oheng = result.oheng || {};
+    const distribution = Object.values(oheng).reduce((acc, val) => {
+      if (val) acc[val] = (acc[val] || 0) + 1;
+      return acc;
+    }, {});
+
     return [
       '[사주(만세력) 소스]',
-      `일간 오행: ${oheng?.dayOheng ?? '-'}`,
-      `오행 분포: ${oheng?.distribution ? JSON.stringify(oheng.distribution) : '-'}`,
-      `기본 해석: ${result.interpretation || '-'}`,
+      `일간 오행: ${oheng.day ?? '-'}`,
+      `오행 분포: ${JSON.stringify(distribution)}`,
+      `기본 해석: ${result.interpretation || '기본 해석 데이터 없음 (생년월일시 기반 오행 분석 참조)'}`,
     ].join('\n');
   }
   return null;

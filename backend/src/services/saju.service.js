@@ -17,15 +17,29 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
  * @param {string} birthDate - YYYY-MM-DD
  * @param {string} birthTime - HH:MM 또는 HH:MM:SS
  * @param {string} [timezone] - IANA 타임존 (예: Asia/Seoul, UTC). 미지정 시 Asia/Seoul(KST)로 간주
+ * @param {string} [calendarType='solar'] - 'solar' | 'lunar'
+ * @param {boolean} [isLeapMonth=false] - 음력 윤달 여부
  * @returns {Promise<{ year, month, day, hour, oheng, kstBirth?, ... }|{ error: string }>}
  */
-export async function calculateSajuWithManseryeok(birthDate, birthTime, timezone = 'Asia/Seoul') {
+export async function calculateSajuWithManseryeok(birthDate, birthTime, timezone = 'Asia/Seoul', calendarType = 'solar', isLeapMonth = false) {
   const scriptPath = path.resolve(__dirname, '../../scripts/saju_manseryeok.py');
   const venvPython = path.resolve(__dirname, '../../venv/bin/python');
 
   const args = [scriptPath, birthDate, birthTime];
   if (timezone && timezone !== 'Asia/Seoul') {
     args.push(timezone);
+  } else {
+    args.push('Asia/Seoul');
+  }
+
+  // calendarType
+  args.push(calendarType);
+
+  // isLeapMonth
+  if (isLeapMonth) {
+    args.push('true');
+  } else {
+    args.push('false');
   }
 
   return new Promise((resolve) => {

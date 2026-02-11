@@ -150,32 +150,50 @@ def parse_gapja_string(gapja_str):
     return None
 
 
-def calculate_saju(birth_date_str, birth_time_str, timezone_str='Asia/Seoul'):
+def calculate_saju(birth_date_str, birth_time_str, timezone_str='Asia/Seoul', calendar_type='solar', is_leap_month=False):
     """
     생년월일시를 KST 기준으로 해석해 만세력 사주 계산.
     - timezone_str: 입력 일시의 타임존(IANA, 예: Asia/Seoul, UTC). 기본값 KST.
+    - calendar_type: 'solar' | 'lunar' (기본값 solar)
+    - is_leap_month: 음력 윤달 여부 (True/False)
     """
     try:
         from korean_lunar_calendar import KoreanLunarCalendar
     except ImportError:
-        return {'error': 'korean_lunar_calendar 패키지가 필요합니다. pip install korean-lunar-calendar'}
+        return {'error': 'korean_lunar_calendar 패키지가 필요합니다. pip install korean_lunar_calendar'}
 
+    # 1. 입력 날짜 파싱 (KST 기준)
+    # 음력인 경우에도 일단 날짜 객체로 파싱하여 연/월/일을 추출해야 함
+    # 단, 음력 입력 시 타임존 개념은 모호하므로, 날짜(YMD)만 취하고 시간은 별도로 처리
+    
     date_for_calendar, hour_for_siju, kst_datetime_str = parse_birth_to_kst(
         birth_date_str, birth_time_str, timezone_str
     )
+    
     if date_for_calendar is None:
         return {'error': '생년월일 형식: YYYY-MM-DD'}
     if kst_datetime_str == 'parse_error':
         return {'error': '생년월일 형식: YYYY-MM-DD'}
 
-    y = date_for_calendar.year
-    m = date_for_calendar.month
-    d = date_for_calendar.day
+    y_input = date_for_calendar.year
+    m_input = date_for_calendar.month
+    d_input = date_for_calendar.day
 
     cal = KoreanLunarCalendar()
-    if not cal.setSolarDate(y, m, d):
-        return {'error': f'지원하지 않는 날짜입니다: {birth_date_str} (1000-02-13 ~ 2050-12-31)'}
+    
+    # 2. 양력/음력 설정
+    isValid = False
+    if calendar_type == 'lunar':
+        # 음력 입력 → 양력 변환
+        isValid = cal.setLunarDate(y_input, m_input, d_input, is_leap_month)
+    else:
+        # 양력 입력
+        isValid = cal.setSolarDate(y_input, m_input, d_input)
+    
+    if not isValid:
+         return {'error': f'지원하지 않는 날짜입니다: {birth_date_str} (Type: {calendar_type})'}
 
+    # 3. 간지 문자열 획득
     gapja_str = cal.getGapJaString()
     parsed = parse_gapja_string(gapja_str)
     if not parsed:
@@ -183,6 +201,9 @@ def calculate_saju(birth_date_str, birth_time_str, timezone_str='Asia/Seoul'):
 
     day_gan = parsed['day']['gan']
     day_gan_index = CHEONGAN.index(day_gan)
+    
+    # 시주는 양력/음력 무관하게 '시간'에 따라 결정.
+    # 만세력 라이브러리는 시주를 직접 계산해주지 않으므로 기존 로직 사용
     hour_pillar = compute_hour_pillar(day_gan_index, hour_for_siju)
 
     year = parsed['year']
@@ -197,31 +218,59 @@ def calculate_saju(birth_date_str, birth_time_str, timezone_str='Asia/Seoul'):
         'hour': OHENG_MAP.get(hour['gan'], ''),
     }
 
-    return {
+    result = {
         'year': year,
         'month': month,
         'day': day,
         'hour': hour,
         'oheng': oheng,
         'kstBirth': kst_datetime_str,
-        'solarDateUsed': f'{y:04d}-{m:02d}-{d:02d}',
+        'inputCalendarType': calendar_type,
         'hourUsedForSiju': hour_for_siju,
     }
+
+    # 양력으로 변환된 날짜 정보 추가 (음력 입력 시 유용)
+    if calendar_type == 'lunar':
+        result['solarDateConverted'] = cal.SolarIsoFormat()
+        result['solarDateUsed'] = cal.SolarIsoFormat()
+        result['lunarDateUsed'] = f'{y_input:04d}-{m_input:02d}-{d_input:02d}'
+        result['isLeapMonth'] = is_leap_month
+    else:
+        result['solarDateUsed'] = f'{y_input:04d}-{m_input:02d}-{d_input:02d}'
+        # 양력 입력 시에도 대응되는 음력 날짜 정보 제공 가능 (선택 사항)
+        result['lunarDateConverted'] = cal.LunarIsoFormat()
+
+    return result
 
 
 def main():
     if len(sys.argv) < 3:
-        print(json.dumps({
-            'error': '사용법: python saju_manseryeok.py YYYY-MM-DD HH:MM [TIMEZONE]',
+        usage = {
+            'error': '사용법: python saju_manseryeok.py YYYY-MM-DD HH:MM [TIMEZONE] [CALENDAR_TYPE] [IS_LEAP]',
             'timezone_default': KST_ZONE,
-        }, ensure_ascii=False))
+            'calendar_type_default': 'solar'
+        }
+        print(json.dumps(usage, ensure_ascii=False))
         sys.exit(1)
 
     birth_date = sys.argv[1]
     birth_time = sys.argv[2]
-    timezone_str = sys.argv[3] if len(sys.argv) > 3 else 'Asia/Seoul'
+    
+    timezone_str = 'Asia/Seoul'
+    if len(sys.argv) > 3:
+        timezone_str = sys.argv[3]
+        
+    calendar_type = 'solar'
+    if len(sys.argv) > 4:
+        calendar_type = sys.argv[4]
 
-    result = calculate_saju(birth_date, birth_time, timezone_str)
+    is_leap_month = False
+    if len(sys.argv) > 5:
+        # "true", "True", "1" 등을 True로 처리
+        val = sys.argv[5].lower()
+        is_leap_month = (val == 'true' or val == '1' or val == 'yes')
+
+    result = calculate_saju(birth_date, birth_time, timezone_str, calendar_type, is_leap_month)
     print(json.dumps(result, ensure_ascii=False))
 
 
